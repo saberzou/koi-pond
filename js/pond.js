@@ -121,7 +121,7 @@ function loop() {
   rain.draw(ctx);
 
   // Darkness overlay for rainy weather
-  const targetAlpha = weather === 'rainy' ? 0.3 : 0;
+  const targetAlpha = weather === 'rainy' ? 0.15 : 0;
   darknessAlpha += (targetAlpha - darknessAlpha) * 0.03;
   if (darknessAlpha > 0.005) {
     ctx.fillStyle = `rgba(0,0,0,${darknessAlpha})`;

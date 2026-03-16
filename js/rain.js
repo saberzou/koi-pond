@@ -5,8 +5,8 @@ class RainRipple {
     this.x = x;
     this.y = y;
     this.age = 0;
-    this.maxAge = 60 + Math.random() * 40;
-    this.maxR = 15 + Math.random() * 20;
+    this.maxAge = 50 + Math.random() * 30;
+    this.maxR = 18 + Math.random() * 25;
   }
 
   get alive() { return this.age < this.maxAge; }
@@ -18,26 +18,26 @@ class RainRipple {
 
     // 3 concentric rings expanding outward
     for (let i = 0; i < 3; i++) {
-      const delay = i * 0.12;
+      const delay = i * 0.1;
       const rt = Math.max(0, t - delay) / (1 - delay);
       if (rt <= 0 || rt >= 1) continue;
 
       const r = rt * this.maxR * (0.5 + i * 0.3);
-      const alpha = (1 - rt) * (1 - rt) * 0.25; // fade out quadratically
+      const alpha = (1 - rt) * (1 - rt) * 0.55; // brighter rings
 
       ctx.beginPath();
       ctx.arc(this.x, this.y, r, 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(200,220,230,${alpha})`;
-      ctx.lineWidth = 1.2 - i * 0.3;
+      ctx.strokeStyle = `rgba(210,230,240,${alpha})`;
+      ctx.lineWidth = 1.5 - i * 0.3;
       ctx.stroke();
     }
 
     // Initial splash dot
-    if (t < 0.1) {
-      const dotAlpha = (1 - t / 0.1) * 0.4;
+    if (t < 0.15) {
+      const dotAlpha = (1 - t / 0.15) * 0.7;
       ctx.beginPath();
-      ctx.arc(this.x, this.y, 1.5, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(220,235,240,${dotAlpha})`;
+      ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(230,240,245,${dotAlpha})`;
       ctx.fill();
     }
   }
@@ -61,8 +61,8 @@ export class RainManager {
 
   update() {
     if (this.active) {
-      // Sparse raindrops — ~2-4 per second at 60fps
-      if (Math.random() < 0.06) {
+      // Denser rain — ~8-12 drops per second at 60fps
+      if (Math.random() < 0.18) {
         this.ripples.push(new RainRipple(
           Math.random() * this.w,
           Math.random() * this.h
