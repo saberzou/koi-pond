@@ -4,11 +4,16 @@ import { WANDER_SPEED, MAX_SPEED, TURN_RATE, TAIL_SPEED, FEAR_RADIUS, FEAR_FORCE
 const SPINE_SEGMENTS = 12;
 
 export class Fish {
-  constructor(x, y, size, colorIndex) {
+  constructor(x, y, size, colorIndexOrObject) {
     this.x = x;
     this.y = y;
     this.size = size;
-    this.color = FISH_COLORS[colorIndex % FISH_COLORS.length];
+    // Accept either a colorIndex (number) or a direct color object
+    if (typeof colorIndexOrObject === 'object' && colorIndexOrObject !== null) {
+      this.color = colorIndexOrObject;
+    } else {
+      this.color = FISH_COLORS[(colorIndexOrObject || 0) % FISH_COLORS.length];
+    }
     this.angle = Math.random() * Math.PI * 2;
     this.speed = WANDER_SPEED * (0.6 + Math.random() * 0.8);
     this.baseSpeed = this.speed;
@@ -157,6 +162,11 @@ export class Fish {
     // Taper to tail
     const tailT = (t - 0.45) / 0.55;
     return w * (1 - tailT * 0.75);
+  }
+
+  // Create a fish from a KOI_VARIETIES entry
+  static fromVariety(x, y, size, variety) {
+    return new Fish(x, y, size, variety);
   }
 
   draw(ctx) {

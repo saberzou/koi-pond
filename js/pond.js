@@ -1,5 +1,5 @@
 // pond.js — Main orchestrator
-import { Fish } from './fish.js?v=11';
+import { Fish } from './fish.js?v=12';
 import { RippleManager } from './ripple.js';
 import { LotusManager } from './lotus.js?v=9';
 import { Dragonfly } from './dragonfly.js?v=9';
@@ -190,4 +190,17 @@ export function init() {
   }, { passive: false });
 
   loop();
+}
+
+export function addFish(variety) {
+  const margin = 80;
+  const x = margin + Math.random() * (w - margin * 2);
+  const y = margin + Math.random() * (h - margin * 2);
+  const size = 20 + Math.random() * 12;
+  fish.push(Fish.fromVariety(x, y, size, variety));
+}
+
+// Expose globally for HTML button use
+if (typeof window !== 'undefined') {
+  window.addFish = addFish;
 }
