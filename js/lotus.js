@@ -33,9 +33,26 @@ class LilyPad {
     ctx.translate(x, y);
     ctx.rotate(this.rotation);
 
+    // Drop shadow on pond floor
+    ctx.save();
+    ctx.translate(8, 10);
+    ctx.beginPath();
+    const notchSize = 0.35;
+    for (let a = this.notchAngle + notchSize; a < this.notchAngle + Math.PI * 2; a += 0.1) {
+      const px = Math.cos(a) * r;
+      const py = Math.sin(a) * r;
+      if (a === this.notchAngle + notchSize) ctx.moveTo(0, 0);
+      ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+    ctx.filter = 'blur(6px)';
+    ctx.fill();
+    ctx.filter = 'none';
+    ctx.restore();
+
     // Draw pad with notch
     ctx.beginPath();
-    const notchSize = 0.35; // radians
     for (let a = this.notchAngle + notchSize; a < this.notchAngle + Math.PI * 2; a += 0.1) {
       const px = Math.cos(a) * r;
       const py = Math.sin(a) * r;
