@@ -223,7 +223,7 @@
     });
   </script>
   <script type="module">
-    import { init } from './js/pond.js?v=37';
+    import { init } from './js/pond.js?v=38';
     import { KOI_VARIETIES } from './js/config.js?v=2';
     init();
 
@@ -274,8 +274,13 @@
       card.appendChild(descEl);
 
       card.addEventListener('click', () => {
-        if (window.addFish) window.addFish(variety);
-        closePanel();
+        const inPond = window.hasFish && window.hasFish(variety.nameEn);
+        if (inPond) {
+          window.removeFish && window.removeFish(variety.nameEn);
+        } else {
+          window.addFish && window.addFish(variety);
+        }
+        updateCardStates();
       });
 
       panel.appendChild(card);
@@ -574,6 +579,7 @@
     }
 
     function openPanel() {
+      updateCardStates();
       panel.classList.add('visible');
       btn.classList.add('panel-open');
     }
