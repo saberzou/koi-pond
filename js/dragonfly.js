@@ -53,7 +53,7 @@ class Dragonfly {
     const wobble = Math.sin(this.wobblePhase) * this.wobbleAmp;
     this.x += this.vx + Math.cos(this.angle + Math.PI / 2) * wobble;
     this.y += this.vy + Math.sin(this.angle + Math.PI / 2) * wobble;
-    this.wingPhase += 0.4;
+    this.wingPhase += 1.2;
 
     // Off-screen? Deactivate
     const m = 120;
@@ -87,7 +87,7 @@ class Dragonfly {
   }
 
   _drawShape(ctx, s, wingBeat, shadowColor) {
-    const tilt = wingBeat * 0.06; // very subtle flutter
+    const tilt = wingBeat * 0.10; // faster flutter
 
     // --- Wings (4 elongated leaf shapes, spread outward) ---
     const wingColor = shadowColor || 'rgba(100,180,220,0.55)';
