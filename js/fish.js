@@ -190,7 +190,7 @@ export class Fish {
     ctx.fillStyle = '#000';
     this._drawBodyPath(ctx, topPts, botPts);
     ctx.save();
-    ctx.translate(3, 4);
+    ctx.translate(-4, 5);
     ctx.scale(1.03, 1.03);
     this._drawBodyPath(ctx, topPts, botPts);
     ctx.fill();

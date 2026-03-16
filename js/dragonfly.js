@@ -34,9 +34,9 @@ class Dragonfly {
     this.wobbleFreq = 0.02 + Math.random() * 0.02;
     this.wobblePhase = Math.random() * Math.PI * 2;
     this.size = 12 + Math.random() * 8;
-    // Shadow offset (dragonfly is high above the water)
-    this.shadowOffX = 20 + Math.random() * 15;
-    this.shadowOffY = 25 + Math.random() * 15;
+    // Shadow offset — light from top-right, shadow bottom-left
+    this.shadowOffX = -(18 + Math.random() * 12);
+    this.shadowOffY = 22 + Math.random() * 12;
   }
 
   update() {

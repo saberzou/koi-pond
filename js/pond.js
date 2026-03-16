@@ -1,8 +1,8 @@
 // pond.js — Main orchestrator
-import { Fish } from './fish.js?v=12';
+import { Fish } from './fish.js?v=13';
 import { RippleManager } from './ripple.js';
-import { LotusManager } from './lotus.js?v=4';
-import { Dragonfly } from './dragonfly.js?v=2';
+import { LotusManager } from './lotus.js?v=5';
+import { Dragonfly } from './dragonfly.js?v=3';
 import { FISH_COUNT, FEAR_RADIUS } from './config.js';
 
 let canvas, ctx, w, h;
