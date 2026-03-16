@@ -78,18 +78,18 @@ export class Fish {
     this.angle = Math.atan2(this.vy, this.vx);
     this.tailPhase += TAIL_SPEED * (1 + spd * 0.5);
 
-    // Wrap
-    const margin = 40;
-    if (this.x < -margin) this.x = w + margin;
-    if (this.x > w + margin) this.x = -margin;
-    if (this.y < -margin) this.y = h + margin;
-    if (this.y > h + margin) this.y = -margin;
+    // Allow fish to swim off-screen, but gently steer back
+    const margin = 200;
+    const softEdge = 0.02;
+    if (this.x < -margin) this.targetAngle = 0;
+    else if (this.x > w + margin) this.targetAngle = Math.PI;
+    else if (this.x < 60) this.vx += softEdge;
+    else if (this.x > w - 60) this.vx -= softEdge;
 
-    // Edge avoidance
-    if (this.x < 60) this.vx += 0.1;
-    if (this.x > w - 60) this.vx -= 0.1;
-    if (this.y < 60) this.vy += 0.1;
-    if (this.y > h - 60) this.vy -= 0.1;
+    if (this.y < -margin) this.targetAngle = Math.PI / 2;
+    else if (this.y > h + margin) this.targetAngle = -Math.PI / 2;
+    else if (this.y < 60) this.vy += softEdge;
+    else if (this.y > h - 60) this.vy -= softEdge;
   }
 
   draw(ctx) {
