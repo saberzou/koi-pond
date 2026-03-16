@@ -149,40 +149,38 @@ export class LotusManager {
     this.pads = [];
     this.flowers = [];
 
-    // Place 4-6 lily pads, avoid center (let fish swim there)
-    const padCount = 4 + Math.floor(Math.random() * 3);
+    // Place 5-7 lily pads, spread across the pond
+    const padCount = 5 + Math.floor(Math.random() * 3);
     const placed = [];
 
     for (let i = 0; i < padCount; i++) {
       let x, y, tries = 0;
       do {
-        // Prefer edges and corners
-        x = Math.random() * w;
-        y = Math.random() * h;
+        x = w * 0.1 + Math.random() * w * 0.8;
+        y = h * 0.1 + Math.random() * h * 0.8;
         tries++;
       } while (
         tries < 50 &&
-        (Math.abs(x - w / 2) < w * 0.2 && Math.abs(y - h / 2) < h * 0.2 ||
-         placed.some(p => Math.hypot(p.x - x, p.y - y) < 80))
+        placed.some(p => Math.hypot(p.x - x, p.y - y) < 90)
       );
 
-      const size = 22 + Math.random() * 18;
+      const size = 25 + Math.random() * 20;
       this.pads.push(new LilyPad(x, y, size));
       placed.push({ x, y });
 
-      // 40% chance to put a flower on this pad
-      if (Math.random() < 0.4) {
+      // 50% chance to put a flower on this pad
+      if (Math.random() < 0.5) {
         const fx = x + (Math.random() - 0.5) * size * 0.5;
         const fy = y + (Math.random() - 0.5) * size * 0.5;
-        this.flowers.push(new LotusFlower(fx, fy, 10 + Math.random() * 6));
+        this.flowers.push(new LotusFlower(fx, fy, 12 + Math.random() * 8));
       }
     }
 
-    // 1-2 standalone flowers
+    // 1-2 standalone flowers in central area
     for (let i = 0; i < 1 + Math.floor(Math.random() * 2); i++) {
-      let x = Math.random() * w;
-      let y = Math.random() * h;
-      this.flowers.push(new LotusFlower(x, y, 8 + Math.random() * 8));
+      let x = w * 0.3 + Math.random() * w * 0.4;
+      let y = h * 0.3 + Math.random() * h * 0.4;
+      this.flowers.push(new LotusFlower(x, y, 10 + Math.random() * 8));
     }
   }
 
