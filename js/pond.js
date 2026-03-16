@@ -126,14 +126,16 @@ export function init() {
   lotus = new LotusManager(w, h);
   dragonfly = new Dragonfly(w, h);
 
-  // Weather toggle — controls liquid displacement
+  // Weather toggle — controls liquid displacement + rain ripples
   window.setWeather = (mode) => {
     weather = mode;
     const app = window.__liquidApp;
     if (app) {
       if (mode === 'rainy') {
+        app.setRain(true);
         app.liquidPlane.uniforms.displacementScale.value = 1.5;
       } else {
+        app.setRain(false);
         app.liquidPlane.uniforms.displacementScale.value = 0;
       }
     }
