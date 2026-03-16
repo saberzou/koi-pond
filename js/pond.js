@@ -1,11 +1,13 @@
 // pond.js — Main orchestrator
 import { Fish } from './fish.js';
 import { RippleManager } from './ripple.js';
+import { LotusManager } from './lotus.js';
 import { FISH_COUNT, FEAR_RADIUS } from './config.js';
 
 let canvas, ctx, w, h;
 let fish = [];
 let ripples;
+let lotus;
 let liquidApp = null;
 
 function generatePondTexture() {
@@ -114,6 +116,8 @@ function loop() {
   fish.forEach(f => f.draw(ctx));
   ripples.update();
   ripples.draw(ctx);
+  lotus.update();
+  lotus.draw(ctx);
   requestAnimationFrame(loop);
 }
 
@@ -121,6 +125,7 @@ export function init() {
   canvas = document.getElementById('fish-canvas');
   ctx = canvas.getContext('2d');
   ripples = new RippleManager();
+  lotus = new LotusManager(w, h);
   w = window.innerWidth;
   h = window.innerHeight;
 
