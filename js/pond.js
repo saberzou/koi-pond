@@ -1,7 +1,7 @@
 // pond.js — Main orchestrator
 import { Fish } from './fish.js?v=2';
 import { RippleManager } from './ripple.js';
-import { LotusManager } from './lotus.js?v=2';
+import { LotusManager } from './lotus.js?v=3';
 import { FISH_COUNT, FEAR_RADIUS } from './config.js';
 
 let canvas, ctx, w, h;
@@ -105,9 +105,9 @@ export function init() {
   canvas = document.getElementById('fish-canvas');
   ctx = canvas.getContext('2d');
   ripples = new RippleManager();
-  lotus = new LotusManager(w, h);
   w = window.innerWidth;
   h = window.innerHeight;
+  lotus = new LotusManager(w, h);
 
   resize();
   initLiquid();
