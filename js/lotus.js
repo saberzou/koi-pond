@@ -266,4 +266,27 @@ export class LotusManager {
     this.pads.forEach(p => p.draw(ctx));
     this.flowers.forEach(f => f.draw(ctx));
   }
+
+  drawRainDrops(ctx) {
+    // Small splash circles on lily pads
+    for (const pad of this.pads) {
+      // ~15% chance per frame per pad to spawn a visible splash
+      if (Math.random() > 0.15) continue;
+      const angle = Math.random() * Math.PI * 2;
+      const dist = Math.random() * pad.size * 0.75;
+      const sx = pad.x + Math.cos(angle) * dist;
+      const sy = pad.y + Math.sin(pad.bobPhase) * 1.2 + Math.sin(angle) * dist;
+      const r = 1.5 + Math.random() * 2.5;
+      ctx.beginPath();
+      ctx.arc(sx, sy, r, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+      // Tiny center dot
+      ctx.beginPath();
+      ctx.arc(sx, sy, 0.5, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      ctx.fill();
+    }
+  }
 }

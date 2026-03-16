@@ -1,7 +1,7 @@
 // pond.js — Main orchestrator
 import { Fish } from './fish.js?v=11';
 import { RippleManager } from './ripple.js';
-import { LotusManager } from './lotus.js?v=5';
+import { LotusManager } from './lotus.js?v=6';
 import { Dragonfly } from './dragonfly.js?v=9';
 import { FISH_COUNT, FEAR_RADIUS } from './config.js';
 
@@ -12,6 +12,7 @@ let lotus;
 let dragonfly;
 let liquidApp = null;
 let weather = 'rainy'; // default: current choppy water = rainy
+let darknessAlpha = 0.15; // starts rainy
 
 function generatePondTexture() {
   const dpr = window.devicePixelRatio || 1;
@@ -111,8 +112,25 @@ function loop() {
   ripples.draw(ctx);
   lotus.update();
   lotus.draw(ctx);
-  dragonfly.update();
-  dragonfly.draw(ctx);
+
+  // Dragonfly only in sunny weather
+  if (weather !== 'rainy') {
+    dragonfly.update();
+    dragonfly.draw(ctx);
+  }
+
+  // Rain splashes on lily pads
+  if (weather === 'rainy') {
+    lotus.drawRainDrops(ctx);
+  }
+
+  // Darkness overlay for rainy weather
+  const targetAlpha = weather === 'rainy' ? 0.15 : 0;
+  darknessAlpha += (targetAlpha - darknessAlpha) * 0.03;
+  if (darknessAlpha > 0.005) {
+    ctx.fillStyle = `rgba(0,0,0,${darknessAlpha})`;
+    ctx.fillRect(0, 0, w, h);
+  }
 
   requestAnimationFrame(loop);
 }
