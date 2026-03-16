@@ -11,6 +11,7 @@ let ripples;
 let lotus;
 let dragonfly;
 let liquidApp = null;
+let weather = 'rainy'; // default: current choppy water = rainy
 
 function generatePondTexture() {
   const dpr = window.devicePixelRatio || 1;
@@ -124,6 +125,19 @@ export function init() {
   h = window.innerHeight;
   lotus = new LotusManager(w, h);
   dragonfly = new Dragonfly(w, h);
+
+  // Weather toggle — controls liquid displacement
+  window.setWeather = (mode) => {
+    weather = mode;
+    const app = window.__liquidApp;
+    if (app) {
+      if (mode === 'rainy') {
+        app.liquidPlane.uniforms.displacementScale.value = 1.5;
+      } else {
+        app.liquidPlane.uniforms.displacementScale.value = 0.4;
+      }
+    }
+  };
 
   resize();
   initLiquid();
