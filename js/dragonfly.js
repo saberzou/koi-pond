@@ -87,44 +87,113 @@ class Dragonfly {
   }
 
   _drawShape(ctx, s, wingBeat, shadowColor) {
-    // Body
+    const tilt = wingBeat * 0.06; // very subtle flutter
+
+    // --- Wings (4 elongated leaf shapes, spread outward) ---
+    const wingColor = shadowColor || 'rgba(100,180,220,0.55)';
+    const veinColor = shadowColor || 'rgba(30,80,130,0.3)';
+    ctx.globalAlpha = shadowColor ? ctx.globalAlpha : 0.7;
+
+    const wings = [
+      { ox: s * 0.2, angle: -0.55 + tilt, len: s * 2.2, w: s * 0.45 },   // front-top
+      { ox: s * 0.2, angle: 0.55 - tilt, len: s * 2.2, w: s * 0.45 },    // front-bottom
+      { ox: -s * 0.15, angle: -0.85 + tilt, len: s * 1.9, w: s * 0.4 },  // rear-top
+      { ox: -s * 0.15, angle: 0.85 - tilt, len: s * 1.9, w: s * 0.4 },   // rear-bottom
+    ];
+
+    for (const wing of wings) {
+      ctx.save();
+      ctx.translate(wing.ox, 0);
+      ctx.rotate(wing.angle);
+      // Wing shape — elongated leaf
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.bezierCurveTo(wing.len * 0.25, -wing.w * 0.5, wing.len * 0.6, -wing.w * 0.45, wing.len, 0);
+      ctx.bezierCurveTo(wing.len * 0.6, wing.w * 0.45, wing.len * 0.25, wing.w * 0.5, 0, 0);
+      ctx.fillStyle = wingColor;
+      ctx.fill();
+
+      // Wing veins
+      if (!shadowColor) {
+        ctx.strokeStyle = veinColor;
+        ctx.lineWidth = 0.4;
+        // Center vein
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(wing.len * 0.95, 0);
+        ctx.stroke();
+        // Side veins
+        for (let v = 0.25; v < 0.9; v += 0.2) {
+          ctx.beginPath();
+          ctx.moveTo(wing.len * v, 0);
+          ctx.lineTo(wing.len * (v + 0.12), -wing.w * 0.35);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(wing.len * v, 0);
+          ctx.lineTo(wing.len * (v + 0.12), wing.w * 0.35);
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
+    }
+
+    // --- Body (golden/yellow with stripes) ---
+    ctx.globalAlpha = shadowColor ? ctx.globalAlpha : 0.9;
+
+    // Thorax (wider segment)
     ctx.beginPath();
-    ctx.ellipse(0, 0, s * 1.2, s * 0.18, 0, 0, Math.PI * 2);
-    ctx.fillStyle = shadowColor || '#1A3A3A';
+    ctx.ellipse(s * 0.1, 0, s * 0.45, s * 0.28, 0, 0, Math.PI * 2);
+    ctx.fillStyle = shadowColor || '#E8B830';
     ctx.fill();
 
-    // Tail
+    // Abdomen / tail (long tapered)
     ctx.beginPath();
-    ctx.moveTo(-s * 0.5, 0);
-    ctx.lineTo(-s * 2, 0);
-    ctx.strokeStyle = shadowColor || '#1A3A3A';
-    ctx.lineWidth = s * 0.08;
-    ctx.stroke();
+    ctx.moveTo(-s * 0.2, -s * 0.18);
+    ctx.bezierCurveTo(-s * 0.8, -s * 0.14, -s * 1.8, -s * 0.06, -s * 2.2, 0);
+    ctx.bezierCurveTo(-s * 1.8, s * 0.06, -s * 0.8, s * 0.14, -s * 0.2, s * 0.18);
+    ctx.fillStyle = shadowColor || '#D4960B';
+    ctx.fill();
 
-    // Wings (4 wings, always extended with subtle tilt)
-    const wingLen = s * 1.8;
-    const wingW = s * 0.7;
-    const tilt = wingBeat * 0.12; // subtle flutter, not collapse
-    const wingAlpha = shadowColor ? 1 : 0.35;
+    // Tail stripes
+    if (!shadowColor) {
+      ctx.strokeStyle = 'rgba(180,80,20,0.4)';
+      ctx.lineWidth = s * 0.06;
+      for (let i = 1; i <= 5; i++) {
+        const tx = -s * 0.3 - i * s * 0.32;
+        const tw = s * 0.16 - i * 0.015 * s;
+        ctx.beginPath();
+        ctx.moveTo(tx, -tw);
+        ctx.lineTo(tx, tw);
+        ctx.stroke();
+      }
+    }
 
-    ctx.globalAlpha = ctx.globalAlpha * wingAlpha;
-    // Top-right wing (front)
+    // Head
     ctx.beginPath();
-    ctx.ellipse(s * 0.2, -wingW * 0.6, wingLen * 0.65, wingW * 0.35, -0.2 + tilt, 0, Math.PI * 2);
-    ctx.fillStyle = shadowColor || 'rgba(180,220,230,0.7)';
+    ctx.ellipse(s * 0.55, 0, s * 0.25, s * 0.22, 0, 0, Math.PI * 2);
+    ctx.fillStyle = shadowColor || '#E8B830';
     ctx.fill();
-    // Bottom-right wing (front)
-    ctx.beginPath();
-    ctx.ellipse(s * 0.2, wingW * 0.6, wingLen * 0.65, wingW * 0.35, 0.2 - tilt, 0, Math.PI * 2);
-    ctx.fill();
-    // Top-left wing (rear)
-    ctx.beginPath();
-    ctx.ellipse(-s * 0.3, -wingW * 0.55, wingLen * 0.55, wingW * 0.3, -0.15 + tilt, 0, Math.PI * 2);
-    ctx.fill();
-    // Bottom-left wing (rear)
-    ctx.beginPath();
-    ctx.ellipse(-s * 0.3, wingW * 0.55, wingLen * 0.55, wingW * 0.3, 0.15 - tilt, 0, Math.PI * 2);
-    ctx.fill();
+
+    // Eyes
+    if (!shadowColor) {
+      ctx.beginPath();
+      ctx.arc(s * 0.7, -s * 0.1, s * 0.12, 0, Math.PI * 2);
+      ctx.fillStyle = '#3A8C3A';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(s * 0.7, s * 0.1, s * 0.12, 0, Math.PI * 2);
+      ctx.fillStyle = '#3A8C3A';
+      ctx.fill();
+      // Eye highlights
+      ctx.beginPath();
+      ctx.arc(s * 0.72, -s * 0.08, s * 0.04, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(s * 0.72, s * 0.12, s * 0.04, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff';
+      ctx.fill();
+    }
   }
 
   resize(w, h) {
