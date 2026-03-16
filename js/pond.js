@@ -1,7 +1,7 @@
 // pond.js — Main orchestrator
 import { Fish } from './fish.js?v=11';
 import { RippleManager } from './ripple.js';
-import { LotusManager } from './lotus.js?v=7';
+import { LotusManager } from './lotus.js?v=8';
 import { Dragonfly } from './dragonfly.js?v=9';
 import { FISH_COUNT, FEAR_RADIUS } from './config.js';
 
@@ -22,8 +22,8 @@ function generatePondTexture() {
   const c = off.getContext('2d');
   c.scale(dpr, dpr);
 
-  // Base pond color — simple blue-green
-  c.fillStyle = '#3D7A7E';
+  // Base pond color — bright sky blue
+  c.fillStyle = '#7DD4E8';
   c.fillRect(0, 0, w, h);
 
   // Soft light patches
@@ -33,8 +33,8 @@ function generatePondTexture() {
     const gy = Math.random() * h;
     const gr = w * (0.15 + Math.random() * 0.25);
     const g = c.createRadialGradient(gx, gy, 0, gx, gy, gr);
-    g.addColorStop(0, `rgba(92,128,133,${0.1 + Math.random() * 0.08})`);
-    g.addColorStop(1, 'rgba(92,128,133,0)');
+    g.addColorStop(0, `rgba(160,220,235,${0.1 + Math.random() * 0.08})`);
+    g.addColorStop(1, 'rgba(160,220,235,0)');
     c.fillStyle = g;
     c.fillRect(0, 0, w, h);
   }

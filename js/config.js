@@ -10,11 +10,10 @@ export const TAIL_SPEED = 0.08;
 export const RIPPLE_MAX_RADIUS = 120;
 export const RIPPLE_DURATION = 60; // frames
 export const FISH_COLORS = [
-  { body: '#E8611A', spots: '#FFFFFF', belly: '#F5D6B8' }, // orange/white
-  { body: '#C41E1E', spots: '#FFFFFF', belly: '#F0C8C8' }, // red/white
-  { body: '#D4920B', spots: '#F5E6A3', belly: '#FFF5D6' }, // gold
-  { body: '#1A1A1A', spots: '#E8611A', belly: '#4A3A2A' }, // black/orange
-  { body: '#E85A1A', spots: '#D4920B', belly: '#FFFFFF' }, // orange/gold
-  { body: '#C41E1E', spots: '#D4920B', belly: '#F5D6B8' }, // red/gold
-  { body: '#F5F5F5', spots: '#C41E1E', belly: '#FFFFFF' }, // white/red
+  { body: '#C84B2A', spots: '#FFFFFF', belly: '#E8CDB8' }, // burnt orange/white
+  { body: '#C84B2A', spots: '#F0D8C0', belly: '#F5E0D0' }, // warm orange
+  { body: '#1A1A1A', spots: '#FFFFFF', belly: '#3A3A3A' }, // ink black/white
+  { body: '#D05530', spots: '#1A1A1A', belly: '#E8C0A0' }, // orange/black
+  { body: '#1A1A1A', spots: '#C84B2A', belly: '#2A2A2A' }, // black/orange
+  { body: '#B84020', spots: '#FFFFFF', belly: '#F0D0B0' }, // deep orange
 ];
