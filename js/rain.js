@@ -1,12 +1,12 @@
-// rain.js — Rain system with random ripples
+// rain.js — Raindrop ripples on water surface
 
-export class RainDrop {
+class RainRipple {
   constructor(x, y) {
     this.x = x;
     this.y = y;
     this.age = 0;
-    this.maxAge = 40 + Math.random() * 30;
-    this.maxR = 8 + Math.random() * 12;
+    this.maxAge = 60 + Math.random() * 40;
+    this.maxR = 15 + Math.random() * 20;
   }
 
   get alive() { return this.age < this.maxAge; }
@@ -15,14 +15,30 @@ export class RainDrop {
 
   draw(ctx) {
     const t = this.age / this.maxAge;
-    const alpha = (1 - t) * 0.18;
-    for (let i = 0; i < 2; i++) {
-      const r = t * this.maxR * (0.5 + i * 0.5);
+
+    // 3 concentric rings expanding outward
+    for (let i = 0; i < 3; i++) {
+      const delay = i * 0.12;
+      const rt = Math.max(0, t - delay) / (1 - delay);
+      if (rt <= 0 || rt >= 1) continue;
+
+      const r = rt * this.maxR * (0.5 + i * 0.3);
+      const alpha = (1 - rt) * (1 - rt) * 0.25; // fade out quadratically
+
       ctx.beginPath();
       ctx.arc(this.x, this.y, r, 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(180,210,220,${alpha * (1 - i * 0.4)})`;
-      ctx.lineWidth = 0.8;
+      ctx.strokeStyle = `rgba(200,220,230,${alpha})`;
+      ctx.lineWidth = 1.2 - i * 0.3;
       ctx.stroke();
+    }
+
+    // Initial splash dot
+    if (t < 0.1) {
+      const dotAlpha = (1 - t / 0.1) * 0.4;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, 1.5, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(220,235,240,${dotAlpha})`;
+      ctx.fill();
     }
   }
 }
@@ -31,9 +47,8 @@ export class RainManager {
   constructor(w, h) {
     this.w = w;
     this.h = h;
-    this.drops = [];
+    this.ripples = [];
     this.active = false;
-    this.intensity = 0.35; // drops per frame
   }
 
   resize(w, h) {
@@ -46,19 +61,19 @@ export class RainManager {
 
   update() {
     if (this.active) {
-      // Spawn rain drops randomly
-      if (Math.random() < this.intensity) {
-        this.drops.push(new RainDrop(
+      // Sparse raindrops — ~2-4 per second at 60fps
+      if (Math.random() < 0.06) {
+        this.ripples.push(new RainRipple(
           Math.random() * this.w,
           Math.random() * this.h
         ));
       }
     }
-    this.drops.forEach(d => d.update());
-    this.drops = this.drops.filter(d => d.alive);
+    this.ripples.forEach(r => r.update());
+    this.ripples = this.ripples.filter(r => r.alive);
   }
 
   draw(ctx) {
-    this.drops.forEach(d => d.draw(ctx));
+    this.ripples.forEach(r => r.draw(ctx));
   }
 }
