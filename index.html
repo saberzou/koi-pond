@@ -18,13 +18,56 @@
       z-index: 2;
       cursor: pointer;
     }
+    .weather-tabs {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      gap: 0;
+      background: rgba(0,0,0,0.25);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 3px;
+    }
+    .weather-tab {
+      padding: 8px 20px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.6);
+      font-size: 13px;
+      font-family: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
+      cursor: pointer;
+      border-radius: 17px;
+      transition: all 0.3s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .weather-tab.active {
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+    }
   </style>
 </head>
 <body>
   <canvas id="liquid-canvas"></canvas>
   <canvas id="fish-canvas"></canvas>
+  <div class="weather-tabs">
+    <button class="weather-tab active" data-weather="sunny">☀️ 晴</button>
+    <button class="weather-tab" data-weather="rainy">🌧️ 雨</button>
+  </div>
+  <script>
+    document.querySelector('.weather-tabs').addEventListener('click', e => {
+      const btn = e.target.closest('.weather-tab');
+      if (!btn) return;
+      document.querySelectorAll('.weather-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (window.setWeather) window.setWeather(btn.dataset.weather);
+    });
+  </script>
   <script type="module">
-    import { init } from './js/pond.js?v=21';
+    import { init } from './js/pond.js?v=22';
     init();
   </script>
 </body>

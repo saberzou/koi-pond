@@ -3,6 +3,7 @@ import { Fish } from './fish.js?v=8';
 import { RippleManager } from './ripple.js';
 import { LotusManager } from './lotus.js?v=5';
 import { Dragonfly } from './dragonfly.js?v=9';
+import { RainManager } from './rain.js';
 import { FISH_COUNT, FEAR_RADIUS } from './config.js';
 
 let canvas, ctx, w, h;
@@ -10,7 +11,10 @@ let fish = [];
 let ripples;
 let lotus;
 let dragonfly;
+let rain;
 let liquidApp = null;
+let weather = 'sunny';
+let darknessAlpha = 0;
 
 function generatePondTexture() {
   const dpr = window.devicePixelRatio || 1;
@@ -84,6 +88,7 @@ function resize() {
   canvas.style.height = h + 'px';
   ctx.setTransform(window.devicePixelRatio || 1, 0, 0, window.devicePixelRatio || 1, 0, 0);
   if (dragonfly) dragonfly.resize(w, h);
+  if (rain) rain.resize(w, h);
 }
 
 function handleInteraction(px, py) {
@@ -112,6 +117,17 @@ function loop() {
   lotus.draw(ctx);
   dragonfly.update();
   dragonfly.draw(ctx);
+  rain.update();
+  rain.draw(ctx);
+
+  // Darkness overlay for rainy weather
+  const targetAlpha = weather === 'rainy' ? 0.3 : 0;
+  darknessAlpha += (targetAlpha - darknessAlpha) * 0.03;
+  if (darknessAlpha > 0.005) {
+    ctx.fillStyle = `rgba(0,0,0,${darknessAlpha})`;
+    ctx.fillRect(0, 0, w, h);
+  }
+
   requestAnimationFrame(loop);
 }
 
@@ -123,6 +139,17 @@ export function init() {
   h = window.innerHeight;
   lotus = new LotusManager(w, h);
   dragonfly = new Dragonfly(w, h);
+  rain = new RainManager(w, h);
+
+  // Expose weather toggle
+  window.setWeather = (mode) => {
+    weather = mode;
+    if (mode === 'rainy') {
+      rain.start();
+    } else {
+      rain.stop();
+    }
+  };
 
   resize();
   initLiquid();
