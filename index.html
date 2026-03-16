@@ -81,19 +81,20 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s ease;
+      transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
       -webkit-tap-highlight-color: transparent;
+      transform: rotate(0deg) scale(1);
     }
     #add-koi-btn:hover {
       background: rgba(0,0,0,0.4);
       color: #fff;
-      transform: scale(1.08);
+      transform: rotate(0deg) scale(1);
     }
     #add-koi-btn.panel-open {
       transform: rotate(45deg) scale(1);
     }
     #add-koi-btn.panel-open:hover {
-      transform: rotate(45deg) scale(1.08);
+      transform: rotate(45deg) scale(1);
     }
 
     /* Koi selector panel */
