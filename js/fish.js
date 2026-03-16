@@ -91,7 +91,15 @@ export class Fish {
 
     this.x += this.vx;
     this.y += this.vy;
-    this.angle = Math.atan2(this.vy, this.vx);
+    // Only update angle when moving fast enough to avoid jitter
+    if (spd > 0.15) {
+      const target = Math.atan2(this.vy, this.vx);
+      // Smooth angle interpolation (never snap)
+      let diff = target - this.angle;
+      while (diff > Math.PI) diff -= Math.PI * 2;
+      while (diff < -Math.PI) diff += Math.PI * 2;
+      this.angle += diff * 0.08;
+    }
     this.tailPhase += TAIL_SPEED * (1 + spd * 0.5);
 
     // Edge steering
