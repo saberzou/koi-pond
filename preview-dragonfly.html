@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html><head><style>body{margin:0;background:#2A4F52;display:flex;align-items:center;justify-content:center;height:100vh}</style></head>
+<body><canvas id="c" width="400" height="400"></canvas>
+<script type="module">
+import { Dragonfly } from './js/dragonfly.js?v=5';
+const c = document.getElementById('c');
+const ctx = c.getContext('2d');
+const d = new Dragonfly(400, 400);
+d.active = true;
+d.x = 200; d.y = 200; d.angle = 0; d.size = 28;
+d.draw(ctx);
+</script></body></html>
