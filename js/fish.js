@@ -299,8 +299,8 @@ export class Fish {
     const eyeHw = this._bodyHalfWidth(1 / SPINE_SEGMENTS);
     const eyeR = s * 0.06;
     for (const side of [-1, 1]) {
-      const ex = eyePt.x + s * 0.05;
-      const ey = eyePt.y + side * eyeHw * 0.45;
+      const ex = eyePt.x - s * 0.08;
+      const ey = eyePt.y + side * eyeHw * 0.7;
       // White
       ctx.beginPath();
       ctx.arc(ex, ey, eyeR * 1.5, 0, Math.PI * 2);
