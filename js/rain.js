@@ -5,8 +5,8 @@ class RainRipple {
     this.x = x;
     this.y = y;
     this.age = 0;
-    this.maxAge = 50 + Math.random() * 30;
-    this.maxR = 18 + Math.random() * 25;
+    this.maxAge = 55 + Math.random() * 35;
+    this.maxR = 30 + Math.random() * 35;
   }
 
   get alive() { return this.age < this.maxAge; }
@@ -23,12 +23,12 @@ class RainRipple {
       if (rt <= 0 || rt >= 1) continue;
 
       const r = rt * this.maxR * (0.5 + i * 0.3);
-      const alpha = (1 - rt) * (1 - rt) * 0.55; // brighter rings
+      const alpha = (1 - rt) * (1 - rt) * 0.7; // bold rings
 
       ctx.beginPath();
       ctx.arc(this.x, this.y, r, 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(210,230,240,${alpha})`;
-      ctx.lineWidth = 1.5 - i * 0.3;
+      ctx.strokeStyle = `rgba(220,238,248,${alpha})`;
+      ctx.lineWidth = 2.5 - i * 0.5;
       ctx.stroke();
     }
 
