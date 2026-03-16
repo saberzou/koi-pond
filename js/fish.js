@@ -81,15 +81,32 @@ export class Fish {
     // Allow fish to swim off-screen, but gently steer back
     const margin = 200;
     const softEdge = 0.02;
-    if (this.x < -margin) this.targetAngle = 0;
-    else if (this.x > w + margin) this.targetAngle = Math.PI;
-    else if (this.x < 60) this.vx += softEdge;
-    else if (this.x > w - 60) this.vx -= softEdge;
+    const outLeft = this.x < -margin, outRight = this.x > w + margin;
+    const outTop = this.y < -margin, outBot = this.y > h + margin;
+    const nearLeft = this.x < 60, nearRight = this.x > w - 60;
+    const nearTop = this.y < 60, nearBot = this.y > h - 60;
 
-    if (this.y < -margin) this.targetAngle = Math.PI / 2;
-    else if (this.y > h + margin) this.targetAngle = -Math.PI / 2;
-    else if (this.y < 60) this.vy += softEdge;
-    else if (this.y > h - 60) this.vy -= softEdge;
+    // Corner: pick a single diagonal angle toward center
+    if ((outLeft || nearLeft) && (outTop || nearTop)) {
+      this.targetAngle = Math.PI * 0.25;  // down-right
+    } else if ((outRight || nearRight) && (outTop || nearTop)) {
+      this.targetAngle = Math.PI * 0.75;  // down-left
+    } else if ((outLeft || nearLeft) && (outBot || nearBot)) {
+      this.targetAngle = -Math.PI * 0.25; // up-right
+    } else if ((outRight || nearRight) && (outBot || nearBot)) {
+      this.targetAngle = -Math.PI * 0.75; // up-left
+    } else {
+      // Edge: single-axis steering
+      if (outLeft) this.targetAngle = 0;
+      else if (outRight) this.targetAngle = Math.PI;
+      else if (nearLeft) this.vx += softEdge;
+      else if (nearRight) this.vx -= softEdge;
+
+      if (outTop) this.targetAngle = Math.PI / 2;
+      else if (outBot) this.targetAngle = -Math.PI / 2;
+      else if (nearTop) this.vy += softEdge;
+      else if (nearBot) this.vy -= softEdge;
+    }
   }
 
   draw(ctx) {
