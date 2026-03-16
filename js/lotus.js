@@ -11,16 +11,45 @@ class LilyPad {
   constructor(x, y, size) {
     this.x = x;
     this.y = y;
+    this.homeX = x;
+    this.homeY = y;
+    this.vx = 0;
+    this.vy = 0;
     this.size = size; // radius in px
     this.color = PAD_COLORS[Math.floor(Math.random() * PAD_COLORS.length)];
     this.rotation = Math.random() * Math.PI * 2;
+    this.rotVel = 0;
     this.notchAngle = Math.random() * Math.PI * 2; // gap in the pad
     this.bobPhase = Math.random() * Math.PI * 2;
     this.bobSpeed = 0.008 + Math.random() * 0.006;
   }
 
+  nudge(px, py, force) {
+    const dx = this.x - px;
+    const dy = this.y - py;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const radius = this.size + 80;
+    if (dist < radius && dist > 0) {
+      const strength = (1 - dist / radius) * force;
+      this.vx += (dx / dist) * strength;
+      this.vy += (dy / dist) * strength;
+      this.rotVel += (Math.random() - 0.5) * strength * 0.02;
+    }
+  }
+
   update() {
     this.bobPhase += this.bobSpeed;
+    // Drift physics
+    this.x += this.vx;
+    this.y += this.vy;
+    this.rotation += this.rotVel;
+    // Friction
+    this.vx *= 0.96;
+    this.vy *= 0.96;
+    this.rotVel *= 0.95;
+    // Spring back to home
+    this.vx += (this.homeX - this.x) * 0.003;
+    this.vy += (this.homeY - this.y) * 0.003;
   }
 
   draw(ctx) {
@@ -84,17 +113,43 @@ class LotusFlower {
   constructor(x, y, size) {
     this.x = x;
     this.y = y;
+    this.homeX = x;
+    this.homeY = y;
+    this.vx = 0;
+    this.vy = 0;
     this.size = size;
     this.palette = FLOWER_COLORS[Math.floor(Math.random() * FLOWER_COLORS.length)];
     this.petalCount = 6 + Math.floor(Math.random() * 3);
-    this.openness = 0.6 + Math.random() * 0.4; // how open
+    this.openness = 0.6 + Math.random() * 0.4;
     this.bobPhase = Math.random() * Math.PI * 2;
     this.bobSpeed = 0.006 + Math.random() * 0.004;
     this.rotation = Math.random() * Math.PI * 2;
+    this.rotVel = 0;
+  }
+
+  nudge(px, py, force) {
+    const dx = this.x - px;
+    const dy = this.y - py;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const radius = this.size + 80;
+    if (dist < radius && dist > 0) {
+      const strength = (1 - dist / radius) * force;
+      this.vx += (dx / dist) * strength;
+      this.vy += (dy / dist) * strength;
+      this.rotVel += (Math.random() - 0.5) * strength * 0.015;
+    }
   }
 
   update() {
     this.bobPhase += this.bobSpeed;
+    this.x += this.vx;
+    this.y += this.vy;
+    this.rotation += this.rotVel;
+    this.vx *= 0.96;
+    this.vy *= 0.96;
+    this.rotVel *= 0.95;
+    this.vx += (this.homeX - this.x) * 0.003;
+    this.vy += (this.homeY - this.y) * 0.003;
   }
 
   draw(ctx) {
@@ -192,6 +247,11 @@ export class LotusManager {
         this.flowers.push(new LotusFlower(fx, fy, 18 + Math.random() * 10));
       }
     }
+  }
+
+  nudge(px, py, force) {
+    this.pads.forEach(p => p.nudge(px, py, force));
+    this.flowers.forEach(f => f.nudge(px, py, force));
   }
 
   update() {

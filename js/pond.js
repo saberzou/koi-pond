@@ -1,7 +1,7 @@
 // pond.js — Main orchestrator
 import { Fish } from './fish.js?v=13';
 import { RippleManager } from './ripple.js';
-import { LotusManager } from './lotus.js?v=5';
+import { LotusManager } from './lotus.js?v=6';
 import { Dragonfly } from './dragonfly.js?v=3';
 import { FISH_COUNT, FEAR_RADIUS } from './config.js';
 
@@ -91,6 +91,15 @@ function handleInteraction(px, py) {
   for (const f of fish) {
     f.flee(px, py);
   }
+  lotus.nudge(px, py, 1.5);
+}
+
+function handleDrag(px, py) {
+  ripples.add(px, py);
+  lotus.nudge(px, py, 0.8);
+  for (const f of fish) {
+    f.flee(px, py);
+  }
 }
 
 function loop() {
@@ -131,6 +140,16 @@ export function init() {
     e.preventDefault();
     for (const t of e.touches) {
       handleInteraction(t.clientX, t.clientY);
+    }
+  }, { passive: false });
+
+  canvas.addEventListener('mousemove', e => {
+    if (e.buttons === 1) handleDrag(e.clientX, e.clientY);
+  });
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    for (const t of e.touches) {
+      handleDrag(t.clientX, t.clientY);
     }
   }, { passive: false });
 
