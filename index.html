@@ -34,7 +34,7 @@
       padding: 3px;
     }
     .weather-tab {
-      padding: 8px 20px;
+      padding: 8px 18px;
       border: none;
       background: transparent;
       color: rgba(255,255,255,0.6);
@@ -44,6 +44,16 @@
       border-radius: 17px;
       transition: all 0.3s ease;
       -webkit-tap-highlight-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .weather-tab svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
     }
     .weather-tab.active {
       background: rgba(255,255,255,0.2);
@@ -55,8 +65,8 @@
   <canvas id="liquid-canvas"></canvas>
   <canvas id="fish-canvas"></canvas>
   <div class="weather-tabs">
-    <button class="weather-tab" data-weather="sunny">☀️ 晴</button>
-    <button class="weather-tab active" data-weather="rainy">🌧️ 雨</button>
+    <button class="weather-tab active" data-weather="sunny"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>晴</button>
+    <button class="weather-tab" data-weather="rainy"><svg viewBox="0 0 24 24"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242M16 14v6M8 14v6M12 16v6"/></svg>雨</button>
   </div>
   <script>
     document.querySelector('.weather-tabs').addEventListener('click', e => {
@@ -68,7 +78,7 @@
     });
   </script>
   <script type="module">
-    import { init } from './js/pond.js?v=33';
+    import { init } from './js/pond.js?v=34';
     init();
   </script>
 </body>

@@ -11,8 +11,8 @@ let ripples;
 let lotus;
 let dragonfly;
 let liquidApp = null;
-let weather = 'rainy'; // default: current choppy water = rainy
-let darknessAlpha = 0.15; // starts rainy
+let weather = 'sunny';
+let darknessAlpha = 0;
 
 function generatePondTexture() {
   const dpr = window.devicePixelRatio || 1;
@@ -57,7 +57,8 @@ function initLiquid() {
       app.loadImage('${dataUrl}');
       app.liquidPlane.material.metalness = 0.3;
       app.liquidPlane.material.roughness = 0.5;
-      app.liquidPlane.uniforms.displacementScale.value = 1.5;
+      app.liquidPlane.uniforms.displacementScale.value = 0;
+      app.setRain(false);
       window.__liquidApp = app;
     }
   `;
