@@ -2,7 +2,7 @@
 import { Fish } from './fish.js?v=8';
 import { RippleManager } from './ripple.js';
 import { LotusManager } from './lotus.js?v=6';
-import { Dragonfly } from './dragonfly.js?v=7';
+import { Dragonfly } from './dragonfly.js?v=8';
 import { FISH_COUNT, FEAR_RADIUS } from './config.js';
 
 let canvas, ctx, w, h;
