@@ -60,11 +60,11 @@ class LilyPad {
 
     ctx.save();
     ctx.translate(x, y);
-    ctx.rotate(this.rotation);
 
-    // Drop shadow on pond floor
+    // Drop shadow on pond floor (fixed direction, before rotation)
     ctx.save();
-    ctx.translate(-10, 12);
+    ctx.translate(8, 10);
+    ctx.rotate(this.rotation);
     ctx.beginPath();
     const notchSize = 0.35;
     for (let a = this.notchAngle + notchSize; a < this.notchAngle + Math.PI * 2; a += 0.1) {
@@ -79,6 +79,8 @@ class LilyPad {
     ctx.fill();
     ctx.filter = 'none';
     ctx.restore();
+
+    ctx.rotate(this.rotation);
 
     // Draw pad with notch
     ctx.beginPath();
