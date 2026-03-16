@@ -15,13 +15,13 @@ export class Ripple {
 
   draw(ctx) {
     const t = this.age / this.maxAge;
-    const alpha = (1 - t) * 0.35;
+    const alpha = (1 - t) * 0.12;
     for (let i = 0; i < 3; i++) {
       const r = t * RIPPLE_MAX_RADIUS * (0.4 + i * 0.3);
       ctx.beginPath();
       ctx.arc(this.x, this.y, r, 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(255,255,255,${alpha * (1 - i * 0.3)})`;
-      ctx.lineWidth = 1.5 - i * 0.4;
+      ctx.strokeStyle = `rgba(200,225,220,${alpha * (1 - i * 0.3)})`;
+      ctx.lineWidth = 1 - i * 0.25;
       ctx.stroke();
     }
   }
