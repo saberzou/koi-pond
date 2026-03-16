@@ -16,11 +16,11 @@ function generatePondTexture() {
   const c = off.getContext('2d');
   c.scale(dpr, dpr);
 
-  // Base pond color
+  // Base pond color — misty blue-green palette
   const bg = c.createLinearGradient(0, 0, 0, h);
-  bg.addColorStop(0, '#2A4A3A');
-  bg.addColorStop(0.5, '#1E3A2E');
-  bg.addColorStop(1, '#1A2F26');
+  bg.addColorStop(0, '#4A6E72');   // 青灰
+  bg.addColorStop(0.5, '#2A4F52'); // 暗青绿
+  bg.addColorStop(1, '#1B3A40');   // 深青
   c.fillStyle = bg;
   c.fillRect(0, 0, w, h);
 
@@ -31,18 +31,26 @@ function generatePondTexture() {
     const gy = Math.random() * h;
     const gr = w * (0.15 + Math.random() * 0.25);
     const g = c.createRadialGradient(gx, gy, 0, gx, gy, gr);
-    g.addColorStop(0, `rgba(80,120,90,${0.15 + Math.random() * 0.1})`);
-    g.addColorStop(1, 'rgba(80,120,90,0)');
+    g.addColorStop(0, `rgba(122,155,165,${0.12 + Math.random() * 0.08})`); // #7A9BA5
+    g.addColorStop(1, 'rgba(74,110,114,0)');
     c.fillStyle = g;
     c.fillRect(0, 0, w, h);
   }
 
-  // Warm center
+  // Misty highlight center
   c.globalCompositeOperation = 'screen';
-  const cg = c.createRadialGradient(w * 0.5, h * 0.5, 0, w * 0.5, h * 0.5, w * 0.4);
-  cg.addColorStop(0, 'rgba(100,130,80,0.1)');
+  const cg = c.createRadialGradient(w * 0.5, h * 0.4, 0, w * 0.5, h * 0.4, w * 0.45);
+  cg.addColorStop(0, 'rgba(184,200,200,0.08)'); // #B8C8C8
   cg.addColorStop(1, 'rgba(0,0,0,0)');
   c.fillStyle = cg;
+  c.fillRect(0, 0, w, h);
+
+  // Secondary light patch
+  c.globalCompositeOperation = 'screen';
+  const cg2 = c.createRadialGradient(w * 0.3, h * 0.7, 0, w * 0.3, h * 0.7, w * 0.3);
+  cg2.addColorStop(0, 'rgba(92,128,133,0.1)'); // #5C8085
+  cg2.addColorStop(1, 'rgba(0,0,0,0)');
+  c.fillStyle = cg2;
   c.fillRect(0, 0, w, h);
 
   c.globalCompositeOperation = 'source-over';
