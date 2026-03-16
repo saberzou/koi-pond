@@ -19,7 +19,7 @@ function generatePondTexture() {
   c.scale(dpr, dpr);
 
   // Base pond color — simple blue-green
-  c.fillStyle = '#2A4F52';
+  c.fillStyle = '#3D7A7E';
   c.fillRect(0, 0, w, h);
 
   // Soft light patches
