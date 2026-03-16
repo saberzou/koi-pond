@@ -1,5 +1,5 @@
 // pond.js — Main orchestrator
-import { Fish } from './fish.js?v=9';
+import { Fish } from './fish.js?v=10';
 import { RippleManager } from './ripple.js';
 import { LotusManager } from './lotus.js?v=5';
 import { Dragonfly } from './dragonfly.js?v=9';
