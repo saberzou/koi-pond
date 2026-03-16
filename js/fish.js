@@ -148,9 +148,11 @@ export class Fish {
   _bodyHalfWidth(t) {
     const s = this.size;
     const w = this.bodyWidth * s;
-    // Koi head: very blunt & round mouth
-    if (t < 0.03) return w * 0.78; // flat round mouth — almost full width immediately
-    if (t < 0.15) return w * (0.78 + 0.22 * ((t - 0.03) / 0.12)); // swell to full
+    // Koi head: smooth round nose using sine curve
+    if (t < 0.15) {
+      // sine ease-out: 0 → w, creates a nice round bulge
+      return w * Math.sin((t / 0.15) * Math.PI * 0.5);
+    }
     if (t < 0.45) return w; // wide body plateau
     // Taper to tail
     const tailT = (t - 0.45) / 0.55;
