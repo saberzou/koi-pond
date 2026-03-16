@@ -148,13 +148,13 @@ export class Fish {
   _bodyHalfWidth(t) {
     const s = this.size;
     const w = this.bodyWidth * s;
-    // Head taper -> widest at 0.25 -> gradual taper to tail
-    if (t < 0.1) return w * 0.5 * (t / 0.1);
-    if (t < 0.3) return w * (0.5 + 0.5 * ((t - 0.1) / 0.2));
-    if (t < 0.5) return w;
-    // Tail section
-    const tailT = (t - 0.5) / 0.5;
-    return w * (1 - tailT * 0.7);
+    // Koi head: blunt & round, widest early at ~0.18
+    if (t < 0.05) return w * 0.65 * (t / 0.05); // blunt nose
+    if (t < 0.18) return w * (0.65 + 0.35 * ((t - 0.05) / 0.13)); // quick swell to full width
+    if (t < 0.45) return w; // wide body plateau
+    // Taper to tail
+    const tailT = (t - 0.45) / 0.55;
+    return w * (1 - tailT * 0.75);
   }
 
   draw(ctx) {
