@@ -164,7 +164,7 @@ export class LotusManager {
         placed.some(p => Math.hypot(p.x - x, p.y - y) < 90)
       );
 
-      const size = 25 + Math.random() * 20;
+      const size = 45 + Math.random() * 35;
       this.pads.push(new LilyPad(x, y, size));
       placed.push({ x, y });
 
@@ -172,7 +172,7 @@ export class LotusManager {
       if (Math.random() < 0.5) {
         const fx = x + (Math.random() - 0.5) * size * 0.5;
         const fy = y + (Math.random() - 0.5) * size * 0.5;
-        this.flowers.push(new LotusFlower(fx, fy, 12 + Math.random() * 8));
+        this.flowers.push(new LotusFlower(fx, fy, 18 + Math.random() * 10));
       }
     }
 
@@ -180,7 +180,7 @@ export class LotusManager {
     for (let i = 0; i < 1 + Math.floor(Math.random() * 2); i++) {
       let x = w * 0.3 + Math.random() * w * 0.4;
       let y = h * 0.3 + Math.random() * h * 0.4;
-      this.flowers.push(new LotusFlower(x, y, 10 + Math.random() * 8));
+      this.flowers.push(new LotusFlower(x, y, 16 + Math.random() * 10));
     }
   }
 
