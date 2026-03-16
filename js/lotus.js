@@ -1,6 +1,6 @@
 // lotus.js — Pixel-art lotus flowers and lily pads
 
-const PAD_COLORS = ['#2D6B3F', '#3A7D4E', '#2A5E38'];
+const PAD_COLORS = ['#7A9E3B', '#8AAD45', '#6E8F32'];
 const FLOWER_COLORS = [
   { petals: '#F5C6D0', center: '#F0E68C' }, // pink
   { petals: '#FFFFFF', center: '#F5E6A3' },  // white
