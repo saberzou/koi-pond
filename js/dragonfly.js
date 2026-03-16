@@ -34,9 +34,9 @@ class Dragonfly {
     this.wobbleFreq = 0.02 + Math.random() * 0.02;
     this.wobblePhase = Math.random() * Math.PI * 2;
     this.size = 12 + Math.random() * 8;
-    // Shadow offset (dragonfly is above the water)
-    this.shadowOffX = 6 + Math.random() * 4;
-    this.shadowOffY = 8 + Math.random() * 4;
+    // Shadow offset (dragonfly is high above the water)
+    this.shadowOffX = 20 + Math.random() * 15;
+    this.shadowOffY = 25 + Math.random() * 15;
   }
 
   update() {
@@ -101,28 +101,29 @@ class Dragonfly {
     ctx.lineWidth = s * 0.08;
     ctx.stroke();
 
-    // Wings (4 wings, beating)
-    const wingLen = s * 1.6;
-    const wingW = s * 0.5 * (0.6 + wingBeat * 0.4);
+    // Wings (4 wings, always extended with subtle tilt)
+    const wingLen = s * 1.8;
+    const wingW = s * 0.7;
+    const tilt = wingBeat * 0.12; // subtle flutter, not collapse
     const wingAlpha = shadowColor ? 1 : 0.35;
 
     ctx.globalAlpha = ctx.globalAlpha * wingAlpha;
-    // Top-right wing
+    // Top-right wing (front)
     ctx.beginPath();
-    ctx.ellipse(s * 0.2, -wingW * 0.5, wingLen * 0.6, Math.abs(wingW) * 0.7, -0.2, 0, Math.PI * 2);
+    ctx.ellipse(s * 0.2, -wingW * 0.6, wingLen * 0.65, wingW * 0.35, -0.2 + tilt, 0, Math.PI * 2);
     ctx.fillStyle = shadowColor || 'rgba(180,220,230,0.7)';
     ctx.fill();
-    // Bottom-right wing
+    // Bottom-right wing (front)
     ctx.beginPath();
-    ctx.ellipse(s * 0.2, wingW * 0.5, wingLen * 0.6, Math.abs(wingW) * 0.7, 0.2, 0, Math.PI * 2);
+    ctx.ellipse(s * 0.2, wingW * 0.6, wingLen * 0.65, wingW * 0.35, 0.2 - tilt, 0, Math.PI * 2);
     ctx.fill();
     // Top-left wing (rear)
     ctx.beginPath();
-    ctx.ellipse(-s * 0.3, -wingW * 0.45, wingLen * 0.5, Math.abs(wingW) * 0.6, -0.15, 0, Math.PI * 2);
+    ctx.ellipse(-s * 0.3, -wingW * 0.55, wingLen * 0.55, wingW * 0.3, -0.15 + tilt, 0, Math.PI * 2);
     ctx.fill();
     // Bottom-left wing (rear)
     ctx.beginPath();
-    ctx.ellipse(-s * 0.3, wingW * 0.45, wingLen * 0.5, Math.abs(wingW) * 0.6, 0.15, 0, Math.PI * 2);
+    ctx.ellipse(-s * 0.3, wingW * 0.55, wingLen * 0.55, wingW * 0.3, 0.15 - tilt, 0, Math.PI * 2);
     ctx.fill();
   }
 
