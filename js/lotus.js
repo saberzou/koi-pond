@@ -268,24 +268,30 @@ export class LotusManager {
   }
 
   drawRainDrops(ctx) {
-    // Small splash circles on lily pads
     for (const pad of this.pads) {
-      // ~15% chance per frame per pad to spawn a visible splash
-      if (Math.random() > 0.15) continue;
+      // ~20% chance per frame per pad
+      if (Math.random() > 0.20) continue;
       const angle = Math.random() * Math.PI * 2;
-      const dist = Math.random() * pad.size * 0.75;
+      const dist = Math.random() * pad.size * 0.7;
       const sx = pad.x + Math.cos(angle) * dist;
       const sy = pad.y + Math.sin(pad.bobPhase) * 1.2 + Math.sin(angle) * dist;
-      const r = 1.5 + Math.random() * 2.5;
+      const r = 2.5 + Math.random() * 3;
+      // Outer ring
       ctx.beginPath();
       ctx.arc(sx, sy, r, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+      ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      // Second ring
+      ctx.beginPath();
+      ctx.arc(sx, sy, r * 1.6, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(255,255,255,0.25)';
       ctx.lineWidth = 0.5;
       ctx.stroke();
-      // Tiny center dot
+      // Center dot
       ctx.beginPath();
-      ctx.arc(sx, sy, 0.5, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      ctx.arc(sx, sy, 1, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,0.7)';
       ctx.fill();
     }
   }
