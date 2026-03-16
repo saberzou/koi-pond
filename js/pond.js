@@ -1,7 +1,7 @@
 // pond.js — Main orchestrator
 import { Fish } from './fish.js';
 import { RippleManager } from './ripple.js';
-import { LotusManager } from './lotus.js';
+import { LotusManager } from './lotus.js?v=2';
 import { FISH_COUNT, FEAR_RADIUS } from './config.js';
 
 let canvas, ctx, w, h;
