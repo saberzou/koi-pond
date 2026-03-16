@@ -134,7 +134,7 @@ export function init() {
       if (mode === 'rainy') {
         app.liquidPlane.uniforms.displacementScale.value = 1.5;
       } else {
-        app.liquidPlane.uniforms.displacementScale.value = 0.4;
+        app.liquidPlane.uniforms.displacementScale.value = 0;
       }
     }
   };
