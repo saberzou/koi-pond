@@ -30,11 +30,12 @@
       background: rgba(0,0,0,0.25);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border-radius: 20px;
+      border-radius: 22px;
       padding: 3px;
     }
     .weather-tab {
-      padding: 8px 18px;
+      padding: 0 18px;
+      height: 38px;
       border: none;
       background: transparent;
       color: rgba(255,255,255,0.6);
@@ -90,6 +91,9 @@
     }
     #add-koi-btn.panel-open {
       transform: rotate(45deg);
+      width: 44px;
+      height: 44px;
+      font-size: 24px;
     }
 
     /* Koi selector panel */
@@ -104,11 +108,11 @@
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border-radius: 20px;
-      padding: 14px;
+      padding: 12px;
       overflow-y: auto;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+      gap: 10px;
       opacity: 0;
       transform: translateY(12px) scale(0.97);
       pointer-events: none;
@@ -130,13 +134,13 @@
     .koi-card {
       background: rgba(255,255,255,0.08);
       border-radius: 12px;
-      padding: 10px 8px 8px;
+      padding: 10px;
       cursor: pointer;
       transition: background 0.18s ease, transform 0.15s ease;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
       -webkit-tap-highlight-color: transparent;
     }
     .koi-card:hover {
