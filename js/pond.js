@@ -193,14 +193,32 @@ export function init() {
 }
 
 export function addFish(variety) {
+  // Only one of each variety allowed
+  if (fish.some(f => f.varietyId === variety.nameEn)) return false;
   const margin = 80;
   const x = margin + Math.random() * (w - margin * 2);
   const y = margin + Math.random() * (h - margin * 2);
   const size = 20 + Math.random() * 12;
-  fish.push(Fish.fromVariety(x, y, size, variety));
+  const f = Fish.fromVariety(x, y, size, variety);
+  f.varietyId = variety.nameEn;
+  fish.push(f);
+  return true;
+}
+
+export function removeFish(varietyNameEn) {
+  const idx = fish.findIndex(f => f.varietyId === varietyNameEn);
+  if (idx === -1) return false;
+  fish.splice(idx, 1);
+  return true;
+}
+
+export function hasFish(varietyNameEn) {
+  return fish.some(f => f.varietyId === varietyNameEn);
 }
 
 // Expose globally for HTML button use
 if (typeof window !== 'undefined') {
   window.addFish = addFish;
+  window.removeFish = removeFish;
+  window.hasFish = hasFish;
 }

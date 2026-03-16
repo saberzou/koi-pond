@@ -146,9 +146,30 @@
     .koi-card:active {
       transform: scale(0.97);
     }
+    .koi-card.in-pond {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+    .koi-card.in-pond .koi-status {
+      display: block;
+    }
+    .koi-status {
+      display: none;
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4ADE80;
+      box-shadow: 0 0 4px rgba(74,222,128,0.6);
+    }
+    .koi-card {
+      position: relative;
+    }
     .koi-swatch {
-      width: 48px;
-      height: 28px;
+      width: 72px;
+      height: 40px;
       flex-shrink: 0;
     }
     .koi-name {
@@ -210,90 +231,30 @@
     const panel = document.getElementById('koi-panel');
 
     // Build koi cards
+    function updateCardStates() {
+      document.querySelectorAll('.koi-card').forEach(card => {
+        const nameEn = card.dataset.variety;
+        const inPond = window.hasFish && window.hasFish(nameEn);
+        card.classList.toggle('in-pond', inPond);
+      });
+    }
+
     KOI_VARIETIES.forEach(variety => {
       const card = document.createElement('div');
       card.className = 'koi-card';
+      card.dataset.variety = variety.nameEn;
 
-      // SVG koi silhouette swatch
-      const svgNS = 'http://www.w3.org/2000/svg';
-      const svg = document.createElementNS(svgNS, 'svg');
-      svg.setAttribute('viewBox', '0 0 48 28');
-      svg.setAttribute('class', 'koi-swatch');
-      svg.setAttribute('xmlns', svgNS);
+      // Green status dot
+      const statusDot = document.createElement('div');
+      statusDot.className = 'koi-status';
+      card.appendChild(statusDot);
 
-      // Body ellipse
-      const bodyEllipse = document.createElementNS(svgNS, 'ellipse');
-      bodyEllipse.setAttribute('cx', '22');
-      bodyEllipse.setAttribute('cy', '14');
-      bodyEllipse.setAttribute('rx', '14');
-      bodyEllipse.setAttribute('ry', '7');
-      bodyEllipse.setAttribute('fill', variety.body);
-
-      // Tail triangle
-      const tail = document.createElementNS(svgNS, 'polygon');
-      tail.setAttribute('points', '8,14 2,6 2,22');
-      tail.setAttribute('fill', variety.body);
-      tail.setAttribute('opacity', '0.8');
-
-      // Spot(s) on body
-      const spot = document.createElementNS(svgNS, 'ellipse');
-      spot.setAttribute('cx', '24');
-      spot.setAttribute('cy', '12');
-      spot.setAttribute('rx', '5');
-      spot.setAttribute('ry', '3.5');
-      spot.setAttribute('fill', variety.spots);
-      spot.setAttribute('opacity', '0.8');
-
-      // Tancho special: red circle on head
-      if (variety.tancho) {
-        const tanchoDot = document.createElementNS(svgNS, 'circle');
-        tanchoDot.setAttribute('cx', '33');
-        tanchoDot.setAttribute('cy', '13');
-        tanchoDot.setAttribute('r', '3.5');
-        tanchoDot.setAttribute('fill', variety.spots);
-        svg.appendChild(bodyEllipse);
-        svg.appendChild(tail);
-        svg.appendChild(tanchoDot);
-      } else {
-        svg.appendChild(bodyEllipse);
-        svg.appendChild(tail);
-        svg.appendChild(spot);
-        // Second spot for multi-color varieties
-        if (variety.accent) {
-          const spot2 = document.createElementNS(svgNS, 'ellipse');
-          spot2.setAttribute('cx', '18');
-          spot2.setAttribute('cy', '16');
-          spot2.setAttribute('rx', '3.5');
-          spot2.setAttribute('ry', '2.5');
-          spot2.setAttribute('fill', variety.accent);
-          spot2.setAttribute('opacity', '0.75');
-          svg.appendChild(spot2);
-        }
-      }
-
-      // Belly sheen
-      const belly = document.createElementNS(svgNS, 'ellipse');
-      belly.setAttribute('cx', '22');
-      belly.setAttribute('cy', '16');
-      belly.setAttribute('rx', '10');
-      belly.setAttribute('ry', '3');
-      belly.setAttribute('fill', variety.belly);
-      belly.setAttribute('opacity', '0.25');
-      svg.appendChild(belly);
-
-      // Eye dot
-      const eye = document.createElementNS(svgNS, 'circle');
-      eye.setAttribute('cx', '34');
-      eye.setAttribute('cy', '12');
-      eye.setAttribute('r', '1.5');
-      eye.setAttribute('fill', '#fff');
-      svg.appendChild(eye);
-      const pupil = document.createElementNS(svgNS, 'circle');
-      pupil.setAttribute('cx', '34.5');
-      pupil.setAttribute('cy', '12');
-      pupil.setAttribute('r', '0.8');
-      pupil.setAttribute('fill', '#111');
-      svg.appendChild(pupil);
+      // Canvas koi swatch
+      const canvas = document.createElement('canvas');
+      canvas.className = 'koi-swatch';
+      canvas.width = 144;
+      canvas.height = 80;
+      drawKoiSwatch(canvas, variety);
 
       const nameEl = document.createElement('div');
       nameEl.className = 'koi-name';
@@ -307,7 +268,7 @@
       descEl.className = 'koi-desc';
       descEl.textContent = variety.desc;
 
-      card.appendChild(svg);
+      card.appendChild(canvas);
       card.appendChild(nameEl);
       card.appendChild(nameEnEl);
       card.appendChild(descEl);
@@ -319,6 +280,298 @@
 
       panel.appendChild(card);
     });
+
+    /**
+     * Draw a top-down koi silhouette on a canvas with variety-accurate patterns.
+     * Canvas is 144×80, koi points right (head at right).
+     */
+    function drawKoiSwatch(canvas, variety) {
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width, H = canvas.height;
+      const cx = W / 2, cy = H / 2;
+
+      // Koi body path (top-down oval, head right, tail left)
+      // Body: main ellipse + pectoral fins + tail fork
+      function bodyPath() {
+        ctx.beginPath();
+        // Main body ellipse
+        ctx.ellipse(cx + 8, cy, 48, 20, 0, 0, Math.PI * 2);
+      }
+
+      // Clip everything to body shape
+      function clipToBody(fn) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.ellipse(cx + 8, cy, 48, 20, 0, 0, Math.PI * 2);
+        ctx.clip();
+        fn();
+        ctx.restore();
+      }
+
+      // --- Background (clear) ---
+      ctx.clearRect(0, 0, W, H);
+
+      // --- Tail fork ---
+      ctx.save();
+      ctx.beginPath();
+      const tx = cx - 40;
+      ctx.moveTo(tx, cy);
+      ctx.bezierCurveTo(tx - 14, cy - 6, tx - 22, cy - 22, tx - 28, cy - 26);
+      ctx.bezierCurveTo(tx - 18, cy - 8, tx - 16, cy - 2, tx - 10, cy);
+      ctx.bezierCurveTo(tx - 16, cy + 2, tx - 18, cy + 8, tx - 28, cy + 26);
+      ctx.bezierCurveTo(tx - 22, cy + 22, tx - 14, cy + 6, tx, cy);
+      ctx.closePath();
+      ctx.fillStyle = variety.body;
+      ctx.globalAlpha = 0.85;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.restore();
+
+      // --- Pectoral fins (small side fins) ---
+      ctx.save();
+      ctx.globalAlpha = 0.6;
+      for (const s of [-1, 1]) {
+        ctx.beginPath();
+        ctx.moveTo(cx + 14, cy + s * 20);
+        ctx.bezierCurveTo(cx + 4, cy + s * 30, cx - 4, cy + s * 32, cx - 14, cy + s * 22);
+        ctx.bezierCurveTo(cx - 6, cy + s * 18, cx + 6, cy + s * 16, cx + 14, cy + s * 20);
+        ctx.fillStyle = variety.body;
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      ctx.restore();
+
+      // --- Body base ---
+      ctx.save();
+      bodyPath();
+      ctx.fillStyle = variety.body;
+      ctx.fill();
+      ctx.restore();
+
+      // --- Pattern layer (clipped to body) ---
+      const en = variety.nameEn;
+
+      clipToBody(() => {
+        // TANCHO: all white, single red circle near head
+        if (variety.tancho) {
+          ctx.fillStyle = variety.spots;
+          ctx.beginPath();
+          ctx.arc(cx + 38, cy, 9, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        // KOHAKU: white body, red patches on top half
+        else if (en === 'Kohaku') {
+          ctx.fillStyle = variety.spots;
+          // Large front-shoulder patch
+          ctx.beginPath();
+          ctx.ellipse(cx + 22, cy - 2, 18, 10, -0.3, 0, Math.PI * 2);
+          ctx.fill();
+          // Mid patch
+          ctx.beginPath();
+          ctx.ellipse(cx - 4, cy + 3, 12, 8, 0.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        // TAISHO SANSHOKU: white + red patches + black spots (hi + sumi)
+        else if (en === 'Taisho Sanshoku') {
+          // Red patches
+          ctx.fillStyle = variety.spots;
+          ctx.beginPath();
+          ctx.ellipse(cx + 20, cy - 3, 16, 9, -0.2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.ellipse(cx - 5, cy + 2, 10, 7, 0.3, 0, Math.PI * 2);
+          ctx.fill();
+          // Black spots (sumi)
+          ctx.fillStyle = variety.accent || '#1A1A1A';
+          ctx.globalAlpha = 0.85;
+          for (const [sx, sy, sr] of [[cx + 32, cy + 8, 3.5], [cx + 10, cy - 10, 3], [cx - 8, cy - 8, 2.5], [cx - 18, cy + 7, 3]]) {
+            ctx.beginPath();
+            ctx.arc(sx, sy, sr, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.globalAlpha = 1;
+        }
+        // SHOWA: black body + red patches + white patches
+        else if (en === 'Showa') {
+          // Red hi patches
+          ctx.fillStyle = variety.spots;
+          ctx.beginPath();
+          ctx.ellipse(cx + 18, cy - 4, 14, 9, -0.3, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.ellipse(cx - 10, cy + 3, 11, 7, 0.2, 0, Math.PI * 2);
+          ctx.fill();
+          // White shiroji patches
+          ctx.fillStyle = variety.accent || '#F5F0E8';
+          ctx.beginPath();
+          ctx.ellipse(cx + 36, cy + 6, 8, 6, 0.4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.ellipse(cx + 6, cy - 8, 7, 5, -0.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        // BEKKO varieties: base color + scattered black spots
+        else if (en.includes('Bekko')) {
+          ctx.fillStyle = variety.spots;
+          ctx.globalAlpha = 0.9;
+          for (const [sx, sy, sr] of [[cx + 28, cy - 6, 5], [cx + 12, cy + 7, 4], [cx - 2, cy - 8, 4.5], [cx - 14, cy + 5, 3.5], [cx + 20, cy + 8, 3]]) {
+            ctx.beginPath();
+            ctx.arc(sx, sy, sr, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.globalAlpha = 1;
+        }
+        // UTSURI: black body + large accent color patches
+        else if (en.includes('Utsuri')) {
+          ctx.fillStyle = variety.spots; // accent color patches on black body
+          // Large diagonal patches typical of utsuri
+          ctx.beginPath();
+          ctx.ellipse(cx + 28, cy, 16, 14, 0.4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.ellipse(cx - 8, cy - 2, 13, 11, -0.3, 0, Math.PI * 2);
+          ctx.fill();
+          // White/accent wraps chin/nose area
+          ctx.beginPath();
+          ctx.ellipse(cx + 44, cy, 8, 6, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        // ASAGI: blue-grey body + scale pattern on back + red belly/flanks
+        else if (en === 'Asagi') {
+          // Red hi on flanks/belly
+          ctx.fillStyle = variety.belly;
+          ctx.beginPath();
+          ctx.ellipse(cx + 8, cy + 10, 32, 10, 0.1, 0, Math.PI * 2);
+          ctx.fill();
+          // Scale reticulation (darker lines on blue-grey back)
+          ctx.strokeStyle = 'rgba(50,80,100,0.55)';
+          ctx.lineWidth = 0.7;
+          for (let row = 0; row < 3; row++) {
+            for (let col = 0; col < 8; col++) {
+              const ox = cx - 32 + col * 10 + (row % 2) * 5;
+              const oy = cy - 9 + row * 6;
+              ctx.beginPath();
+              ctx.arc(ox, oy, 4, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+          }
+        }
+        // OGON (solid metallic): add metallic sheen stripes
+        else if (en.includes('Ogon') || en.includes('Matsuba')) {
+          // Lighter center highlight
+          const sheen = ctx.createLinearGradient(0, cy - 20, 0, cy + 20);
+          sheen.addColorStop(0, variety.belly + 'CC');
+          sheen.addColorStop(0.5, variety.spots + '88');
+          sheen.addColorStop(1, variety.body + '44');
+          ctx.fillStyle = sheen;
+          ctx.fillRect(cx - 48, cy - 20, 96, 40);
+          // Scale glint dots for matsuba
+          if (en.includes('Matsuba')) {
+            ctx.fillStyle = 'rgba(60,60,60,0.3)';
+            for (let row = 0; row < 3; row++) {
+              for (let col = 0; col < 7; col++) {
+                const ox = cx - 26 + col * 9 + (row % 2) * 4;
+                const oy = cy - 7 + row * 7;
+                ctx.beginPath();
+                ctx.arc(ox, oy, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+              }
+            }
+          }
+        }
+        // GOSHIKI: blue-grey + red patches + dark reticulation (5 colors)
+        else if (en === 'Goshiki') {
+          // Red patches
+          ctx.fillStyle = variety.spots;
+          ctx.beginPath();
+          ctx.ellipse(cx + 20, cy - 3, 13, 8, -0.2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.ellipse(cx - 8, cy + 2, 9, 6, 0.2, 0, Math.PI * 2);
+          ctx.fill();
+          // Scale reticulation
+          ctx.strokeStyle = 'rgba(20,30,50,0.5)';
+          ctx.lineWidth = 0.6;
+          for (let row = 0; row < 4; row++) {
+            for (let col = 0; col < 9; col++) {
+              const ox = cx - 36 + col * 9 + (row % 2) * 4;
+              const oy = cy - 12 + row * 7;
+              ctx.beginPath();
+              ctx.arc(ox, oy, 3.5, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+          }
+        }
+        // KUMONRYU: black + white large flowing patches
+        else if (en === 'Kumonryu') {
+          ctx.fillStyle = variety.spots;
+          // Flowing dragon-like white patches
+          ctx.beginPath();
+          ctx.moveTo(cx + 48, cy - 8);
+          ctx.bezierCurveTo(cx + 34, cy - 18, cx + 14, cy - 14, cx + 6, cy - 4);
+          ctx.bezierCurveTo(cx + 14, cy + 2, cx + 28, cy - 2, cx + 48, cy + 6);
+          ctx.closePath();
+          ctx.fill();
+          ctx.beginPath();
+          ctx.ellipse(cx - 16, cy + 4, 14, 9, 0.4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        // BENIGOI / CHAGOI / KARASHIGOI / KARASUGOI: solid + subtle sheen
+        else if (['Benigoi','Chagoi','Karashigoi','Karasugoi'].some(n => en.includes(n.replace('i','')))) {
+          const sheen = ctx.createRadialGradient(cx + 14, cy - 6, 2, cx + 8, cy, 38);
+          sheen.addColorStop(0, variety.belly + 'BB');
+          sheen.addColorStop(0.6, variety.spots + '44');
+          sheen.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = sheen;
+          ctx.fillRect(cx - 48, cy - 22, 96, 44);
+        }
+        // Default fallback: two spots
+        else {
+          ctx.fillStyle = variety.spots;
+          ctx.globalAlpha = 0.8;
+          ctx.beginPath();
+          ctx.ellipse(cx + 20, cy - 2, 13, 8, -0.2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.ellipse(cx - 6, cy + 3, 9, 6, 0.2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+      });
+
+      // --- Dorsal fin (on top, center ridge) ---
+      ctx.save();
+      ctx.globalAlpha = 0.5;
+      ctx.fillStyle = variety.body;
+      ctx.beginPath();
+      ctx.moveTo(cx + 28, cy - 20);
+      ctx.bezierCurveTo(cx + 18, cy - 28, cx + 2, cy - 28, cx - 10, cy - 22);
+      ctx.bezierCurveTo(cx - 4, cy - 20, cx + 12, cy - 20, cx + 28, cy - 20);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.restore();
+
+      // --- Body outline ---
+      ctx.save();
+      bodyPath();
+      ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+      ctx.restore();
+
+      // --- Eye ---
+      const eyeX = cx + 50, eyeY = cy - 5;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(eyeX, eyeY, 3, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(eyeX + 1, eyeY, 2, 0, Math.PI * 2);
+      ctx.fillStyle = '#111';
+      ctx.fill();
+      ctx.restore();
+    }
 
     function openPanel() {
       panel.classList.add('visible');
