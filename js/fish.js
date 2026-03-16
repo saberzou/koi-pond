@@ -23,7 +23,7 @@ export class Fish {
     this.bodyWidth = 0.28 + Math.random() * 0.08; // width ratio
     this.tailWidth = 0.6 + Math.random() * 0.2;
     this.finSize = 0.7 + Math.random() * 0.4;
-    this.waveAmp = 0.3 + Math.random() * 0.15; // spine wave amplitude
+    this.waveAmp = 0.12 + Math.random() * 0.06; // spine wave amplitude (subtle)
     this.waveFreq = 1.8 + Math.random() * 0.4;
 
     // Spots - random placement along body
