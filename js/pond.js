@@ -2,12 +2,14 @@
 import { Fish } from './fish.js?v=2';
 import { RippleManager } from './ripple.js';
 import { LotusManager } from './lotus.js?v=3';
+import { Dragonfly } from './dragonfly.js?v=1';
 import { FISH_COUNT, FEAR_RADIUS } from './config.js';
 
 let canvas, ctx, w, h;
 let fish = [];
 let ripples;
 let lotus;
+let dragonfly;
 let liquidApp = null;
 
 function generatePondTexture() {
@@ -81,6 +83,7 @@ function resize() {
   canvas.style.width = w + 'px';
   canvas.style.height = h + 'px';
   ctx.setTransform(window.devicePixelRatio || 1, 0, 0, window.devicePixelRatio || 1, 0, 0);
+  if (dragonfly) dragonfly.resize(w, h);
 }
 
 function handleInteraction(px, py) {
@@ -98,6 +101,8 @@ function loop() {
   ripples.draw(ctx);
   lotus.update();
   lotus.draw(ctx);
+  dragonfly.update();
+  dragonfly.draw(ctx);
   requestAnimationFrame(loop);
 }
 
@@ -108,6 +113,7 @@ export function init() {
   w = window.innerWidth;
   h = window.innerHeight;
   lotus = new LotusManager(w, h);
+  dragonfly = new Dragonfly(w, h);
 
   resize();
   initLiquid();
