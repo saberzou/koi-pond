@@ -149,38 +149,31 @@ export class LotusManager {
     this.pads = [];
     this.flowers = [];
 
-    // Place 5-7 lily pads, spread across the pond
-    const padCount = 5 + Math.floor(Math.random() * 3);
-    const placed = [];
+    // Fixed positions from Saber's markup (percentage-based)
+    const spots = [
+      { x: 0.30, y: 0.33, pad: true, flower: true },   // upper-left circle
+      { x: 0.25, y: 0.74, pad: true, flower: true },   // lower-left circle
+      { x: 0.82, y: 0.87, pad: true, flower: true },   // lower-right circle
+      // Edge pads
+      { x: 0.08, y: 0.12, pad: true, flower: false },  // top-left corner
+      { x: 0.92, y: 0.18, pad: true, flower: false },  // top-right edge
+      { x: 0.06, y: 0.55, pad: true, flower: true },   // left edge
+      { x: 0.90, y: 0.52, pad: true, flower: false },  // right edge
+      { x: 0.15, y: 0.92, pad: true, flower: false },  // bottom-left
+    ];
 
-    for (let i = 0; i < padCount; i++) {
-      let x, y, tries = 0;
-      do {
-        x = w * 0.1 + Math.random() * w * 0.8;
-        y = h * 0.1 + Math.random() * h * 0.8;
-        tries++;
-      } while (
-        tries < 50 &&
-        placed.some(p => Math.hypot(p.x - x, p.y - y) < 90)
-      );
-
+    for (const spot of spots) {
+      const sx = spot.x * w + (Math.random() - 0.5) * 20;
+      const sy = spot.y * h + (Math.random() - 0.5) * 20;
       const size = 45 + Math.random() * 35;
-      this.pads.push(new LilyPad(x, y, size));
-      placed.push({ x, y });
 
-      // 50% chance to put a flower on this pad
-      if (Math.random() < 0.5) {
-        const fx = x + (Math.random() - 0.5) * size * 0.5;
-        const fy = y + (Math.random() - 0.5) * size * 0.5;
+      this.pads.push(new LilyPad(sx, sy, size));
+
+      if (spot.flower) {
+        const fx = sx + (Math.random() - 0.5) * size * 0.4;
+        const fy = sy + (Math.random() - 0.5) * size * 0.4;
         this.flowers.push(new LotusFlower(fx, fy, 18 + Math.random() * 10));
       }
-    }
-
-    // 1-2 standalone flowers in central area
-    for (let i = 0; i < 1 + Math.floor(Math.random() * 2); i++) {
-      let x = w * 0.3 + Math.random() * w * 0.4;
-      let y = h * 0.3 + Math.random() * h * 0.4;
-      this.flowers.push(new LotusFlower(x, y, 16 + Math.random() * 10));
     }
   }
 
