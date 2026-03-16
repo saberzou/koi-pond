@@ -95,10 +95,10 @@ class Dragonfly {
     ctx.globalAlpha = shadowColor ? ctx.globalAlpha : 0.7;
 
     const wings = [
-      { ox: s * 0.2, angle: -0.55 + tilt, len: s * 2.2, w: s * 0.45 },   // front-top
-      { ox: s * 0.2, angle: 0.55 - tilt, len: s * 2.2, w: s * 0.45 },    // front-bottom
-      { ox: -s * 0.15, angle: -0.85 + tilt, len: s * 1.9, w: s * 0.4 },  // rear-top
-      { ox: -s * 0.15, angle: 0.85 - tilt, len: s * 1.9, w: s * 0.4 },   // rear-bottom
+      { ox: s * 0.1, angle: -1.0 + tilt, len: s * 2.2, w: s * 0.45 },    // front-top
+      { ox: s * 0.1, angle: 1.0 - tilt, len: s * 2.2, w: s * 0.45 },     // front-bottom
+      { ox: -s * 0.25, angle: -1.35 + tilt, len: s * 1.9, w: s * 0.4 },  // rear-top
+      { ox: -s * 0.25, angle: 1.35 - tilt, len: s * 1.9, w: s * 0.4 },   // rear-bottom
     ];
 
     for (const wing of wings) {
