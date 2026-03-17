@@ -58,16 +58,17 @@ export class BreathingMode {
   }
 
   // ---- Easing ----
-  _easeInOut(t) {
-    return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-  }
+  // Complementary curves: easeOut for inhale, easeIn for exhale
+  // so the transition between phases is seamless (no perceived pause)
+  _easeOut(t) { return 1 - (1 - t) * (1 - t); }
+  _easeIn(t)  { return t * t; }
 
   // Returns 0 (contracted) .. 1 (expanded) for current breath state
   getBreathProgress() {
     if (!this._active) return 0;
     switch (this._phase) {
-      case 'inhale':         return this._easeInOut(this._phaseProgress);
-      case 'exhale':         return 1 - this._easeInOut(this._phaseProgress);
+      case 'inhale':         return this._easeOut(this._phaseProgress);
+      case 'exhale':         return 1 - this._easeIn(this._phaseProgress);
       default:               return 0;
     }
   }
