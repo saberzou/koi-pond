@@ -203,13 +203,41 @@
     #koi-panel::-webkit-scrollbar-track { background: transparent; }
     #koi-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
 
+    /* Breathing button (left side, symmetric with add-koi) */
+    #breathing-btn {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      z-index: 10;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(0,0,0,0.25);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: rgba(255,255,255,0.8);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease, color 0.2s ease, box-shadow 0.3s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #breathing-btn:hover {
+      background: rgba(0,0,0,0.4);
+      color: #fff;
+    }
+
     /* ---- Breathing mode ---- */
     @keyframes breathe-glow {
       0%, 100% { box-shadow: 0 0 0 0 rgba(180,220,255,0); }
       50%       { box-shadow: 0 0 14px 5px rgba(140,200,255,0.5); }
     }
-    .weather-tab.breathing-active {
+    #breathing-btn.breathing-active {
       animation: breathe-glow 4s ease-in-out infinite;
+      background: rgba(0,0,0,0.4);
+      color: #fff;
     }
 
     #breathing-overlay {
@@ -250,8 +278,10 @@
   <div class="weather-tabs">
     <button class="weather-tab active" data-weather="sunny"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>晴</button>
     <button class="weather-tab" data-weather="rainy"><svg viewBox="0 0 24 24"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242M16 14v6M8 14v6M12 16v6"/></svg>雨</button>
-    <button class="weather-tab" data-mode="breathing"><svg viewBox="0 0 24 24"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>呼吸</button>
   </div>
+
+  <!-- Breathing button (left side, symmetric with add-koi on right) -->
+  <button id="breathing-btn" title="呼吸模式"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg></button>
 
   <!-- Breathing phase label overlay -->
   <div id="breathing-overlay">
@@ -265,31 +295,25 @@
   <div id="koi-panel"></div>
 
   <script>
+    // Weather tabs
     document.querySelector('.weather-tabs').addEventListener('click', e => {
       const btn = e.target.closest('.weather-tab');
       if (!btn) return;
-
-      // Breathing button is a toggle, not a weather mode
-      if (btn.dataset.mode === 'breathing') {
-        // Close koi panel if open
-        const panel = document.getElementById('koi-panel');
-        const koiBtn = document.getElementById('add-koi-btn');
-        if (panel && panel.classList.contains('visible')) {
-          panel.classList.remove('visible');
-          koiBtn && koiBtn.classList.remove('panel-open');
-        }
-        // Toggle breathing
-        if (window.toggleBreathing) {
-          window.toggleBreathing();
-          // Visual state is managed by the updateBreathingUI RAF loop
-        }
-        return;
-      }
-
-      // Weather buttons: deactivate breathing active state on the breathing btn
-      document.querySelectorAll('.weather-tab[data-weather]').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.weather-tab').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       if (window.setWeather) window.setWeather(btn.dataset.weather);
+    });
+
+    // Breathing button (standalone)
+    document.getElementById('breathing-btn').addEventListener('click', () => {
+      // Close koi panel if open
+      const panel = document.getElementById('koi-panel');
+      const koiBtn = document.getElementById('add-koi-btn');
+      if (panel && panel.classList.contains('visible')) {
+        panel.classList.remove('visible');
+        koiBtn && koiBtn.classList.remove('panel-open');
+      }
+      if (window.toggleBreathing) window.toggleBreathing();
     });
 
     // --- Breathing phase label loop ---
@@ -301,7 +325,7 @@
     };
     let _lastPhase = null;
     const breathingLabel = document.getElementById('breathing-label');
-    const breathingBtn   = document.querySelector('.weather-tab[data-mode="breathing"]');
+    const breathingBtn   = document.getElementById('breathing-btn');
 
     function updateBreathingUI() {
       const active = window.isBreathingActive && window.isBreathingActive();
