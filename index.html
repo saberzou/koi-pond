@@ -202,6 +202,46 @@
     #koi-panel::-webkit-scrollbar { width: 4px; }
     #koi-panel::-webkit-scrollbar-track { background: transparent; }
     #koi-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+
+    /* ---- Breathing mode ---- */
+    @keyframes breathe-glow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(180,220,255,0); }
+      50%       { box-shadow: 0 0 14px 5px rgba(140,200,255,0.5); }
+    }
+    .weather-tab.breathing-active {
+      animation: breathe-glow 4s ease-in-out infinite;
+    }
+
+    #breathing-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    #breathing-label {
+      background: rgba(0,0,0,0.28);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 16px;
+      padding: 10px 22px;
+      color: rgba(255,255,255,0.92);
+      font-family: -apple-system, "PingFang SC", "SF Pro Text", "Helvetica Neue", sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+      pointer-events: none;
+    }
+    #breathing-label.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
   </style>
 </head>
 <body>
@@ -210,6 +250,12 @@
   <div class="weather-tabs">
     <button class="weather-tab active" data-weather="sunny"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>晴</button>
     <button class="weather-tab" data-weather="rainy"><svg viewBox="0 0 24 24"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242M16 14v6M8 14v6M12 16v6"/></svg>雨</button>
+    <button class="weather-tab" data-mode="breathing"><svg viewBox="0 0 24 24"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>呼吸</button>
+  </div>
+
+  <!-- Breathing phase label overlay -->
+  <div id="breathing-overlay">
+    <div id="breathing-label"></div>
   </div>
 
   <!-- Add Koi floating button -->
@@ -222,13 +268,72 @@
     document.querySelector('.weather-tabs').addEventListener('click', e => {
       const btn = e.target.closest('.weather-tab');
       if (!btn) return;
-      document.querySelectorAll('.weather-tab').forEach(b => b.classList.remove('active'));
+
+      // Breathing button is a toggle, not a weather mode
+      if (btn.dataset.mode === 'breathing') {
+        // Close koi panel if open
+        const panel = document.getElementById('koi-panel');
+        const koiBtn = document.getElementById('add-koi-btn');
+        if (panel && panel.classList.contains('visible')) {
+          panel.classList.remove('visible');
+          koiBtn && koiBtn.classList.remove('panel-open');
+        }
+        // Toggle breathing
+        if (window.toggleBreathing) {
+          window.toggleBreathing();
+          // Visual state is managed by the updateBreathingUI RAF loop
+        }
+        return;
+      }
+
+      // Weather buttons: deactivate breathing active state on the breathing btn
+      document.querySelectorAll('.weather-tab[data-weather]').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       if (window.setWeather) window.setWeather(btn.dataset.weather);
     });
+
+    // --- Breathing phase label loop ---
+    const PHASE_TEXT = {
+      inhale:          '吸气...',
+      holdExpanded:    '屏息...',
+      exhale:          '呼气...',
+      holdContracted:  '屏息...',
+    };
+    let _lastPhase = null;
+    const breathingLabel = document.getElementById('breathing-label');
+    const breathingBtn   = document.querySelector('.weather-tab[data-mode="breathing"]');
+
+    function updateBreathingUI() {
+      const active = window.isBreathingActive && window.isBreathingActive();
+      if (breathingBtn) {
+        breathingBtn.classList.toggle('active', !!active);
+        breathingBtn.classList.toggle('breathing-active', !!active);
+      }
+      if (!active) {
+        breathingLabel && breathingLabel.classList.remove('visible');
+        _lastPhase = null;
+        requestAnimationFrame(updateBreathingUI);
+        return;
+      }
+      if (breathingLabel) {
+        breathingLabel.classList.add('visible');
+        const phase = window.__breathingPhase || 'inhale';
+        if (phase !== _lastPhase) {
+          // Fade out, swap text, fade in via CSS transition
+          breathingLabel.classList.remove('visible');
+          setTimeout(() => {
+            breathingLabel.textContent = PHASE_TEXT[phase] || '';
+            breathingLabel.classList.add('visible');
+          }, 320);
+          _lastPhase = phase;
+        }
+      }
+      requestAnimationFrame(updateBreathingUI);
+    }
+    requestAnimationFrame(updateBreathingUI);
   </script>
   <script type="module">
-    import { init } from './js/pond.js?v=38';
+    import { init } from './js/pond.js?v=39';
     import { KOI_VARIETIES } from './js/config.js?v=2';
     init();
 

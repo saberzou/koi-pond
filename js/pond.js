@@ -4,12 +4,14 @@ import { RippleManager } from './ripple.js';
 import { LotusManager } from './lotus.js?v=9';
 import { Dragonfly } from './dragonfly.js?v=9';
 import { FISH_COUNT, FEAR_RADIUS } from './config.js';
+import { BreathingMode } from './breathing.js?v=1';
 
 let canvas, ctx, w, h;
 let fish = [];
 let ripples;
 let lotus;
 let dragonfly;
+let breathing;
 let liquidApp = null;
 let weather = 'sunny';
 let darknessAlpha = 0;
@@ -86,10 +88,10 @@ function resize() {
   canvas.style.height = h + 'px';
   ctx.setTransform(window.devicePixelRatio || 1, 0, 0, window.devicePixelRatio || 1, 0, 0);
   if (dragonfly) dragonfly.resize(w, h);
-
 }
 
 function handleInteraction(px, py) {
+  if (breathing.isActive()) return; // ignore taps during breathing
   ripples.add(px, py);
   for (const f of fish) {
     f.flee(px, py);
@@ -98,6 +100,7 @@ function handleInteraction(px, py) {
 }
 
 function handleDrag(px, py) {
+  if (breathing.isActive()) return;
   ripples.add(px, py);
   lotus.nudge(px, py, 0.8);
   for (const f of fish) {
@@ -107,15 +110,25 @@ function handleDrag(px, py) {
 
 function loop() {
   ctx.clearRect(0, 0, w, h);
-  fish.forEach(f => f.update(w, h, fish));
+
+  // Breathing mode overrides normal fish movement
+  if (breathing.isActive()) {
+    breathing.update(fish, w, h);
+  } else {
+    fish.forEach(f => f.update(w, h, fish));
+  }
+
+  // Progress ring (drawn behind fish)
+  breathing.drawRing(ctx, w, h);
+
   fish.forEach(f => f.draw(ctx));
   ripples.update();
   ripples.draw(ctx);
   lotus.update();
   lotus.draw(ctx);
 
-  // Dragonfly only in sunny weather
-  if (weather !== 'rainy') {
+  // Dragonfly only in sunny weather, paused during breathing
+  if (weather !== 'rainy' && !breathing.isActive()) {
     dragonfly.update();
     dragonfly.draw(ctx);
   }
@@ -133,6 +146,33 @@ function loop() {
     ctx.fillRect(0, 0, w, h);
   }
 
+  // Vignette drawn last (top layer)
+  breathing.drawVignette(ctx, w, h);
+
+  // Expose current phase for HTML UI label
+  if (breathing.isActive()) {
+    window.__breathingPhase = breathing.getPhase();
+  } else {
+    window.__breathingPhase = null;
+  }
+
+  // Pulse liquid displacement with breath
+  const app = window.__liquidApp;
+  if (app) {
+    const weatherDisp = weather === 'rainy' ? 1.5 : 0;
+    if (breathing.isActive()) {
+      const tp = breathing.getTransitionProgress();
+      const bp = breathing.getBreathProgress();
+      const breathDisp = 0.18 + bp * 0.22;
+      app.liquidPlane.uniforms.displacementScale.value = weatherDisp + breathDisp * tp;
+    } else {
+      const cur = app.liquidPlane.uniforms.displacementScale.value;
+      if (Math.abs(cur - weatherDisp) > 0.01) {
+        app.liquidPlane.uniforms.displacementScale.value += (weatherDisp - cur) * 0.05;
+      }
+    }
+  }
+
   requestAnimationFrame(loop);
 }
 
@@ -144,12 +184,13 @@ export function init() {
   h = window.innerHeight;
   lotus = new LotusManager(w, h);
   dragonfly = new Dragonfly(w, h);
+  breathing = new BreathingMode();
 
   // Weather toggle — controls liquid displacement + rain ripples
   window.setWeather = (mode) => {
     weather = mode;
     const app = window.__liquidApp;
-    if (app) {
+    if (app && !breathing.isActive()) {
       if (mode === 'rainy') {
         app.setRain(true);
         app.liquidPlane.uniforms.displacementScale.value = 1.5;
@@ -157,8 +198,25 @@ export function init() {
         app.setRain(false);
         app.liquidPlane.uniforms.displacementScale.value = 0;
       }
+    } else if (app && mode === 'rainy') {
+      app.setRain(true);
+    } else if (app) {
+      app.setRain(false);
     }
   };
+
+  // Breathing toggle — called from HTML button
+  window.toggleBreathing = () => {
+    if (breathing.isActive()) {
+      breathing.deactivate(fish);
+      return false;
+    } else {
+      breathing.activate();
+      return true;
+    }
+  };
+
+  window.isBreathingActive = () => breathing.isActive();
 
   resize();
   initLiquid();
@@ -166,7 +224,6 @@ export function init() {
 
   window.addEventListener('resize', () => {
     resize();
-    // Re-init liquid on resize for texture match
   });
 
   canvas.addEventListener('click', e => {
