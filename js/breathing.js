@@ -1,8 +1,9 @@
-// breathing.js — Breathing Mode for Koi Pond (Box Breathing: 4-4-4-4)
+// breathing.js — Breathing Mode for Koi Pond (Simple: inhale-exhale)
 
-const PHASE_DURATION = 4000; // ms per phase
+const INHALE_DURATION = 4000; // ms
+const EXHALE_DURATION = 6000; // ms — slower exhale feels more calming
 const TRANSITION_DURATION = 2000; // ms for in/out transition
-const PHASES = ['inhale', 'holdExpanded', 'exhale', 'holdContracted'];
+const PHASES = ['inhale', 'exhale'];
 const BREATHING_SPEED_FACTOR = 0.4;
 const TAIL_SPEED_CONST = 0.08; // mirrors config.js TAIL_SPEED
 
@@ -66,9 +67,7 @@ export class BreathingMode {
     if (!this._active) return 0;
     switch (this._phase) {
       case 'inhale':         return this._easeInOut(this._phaseProgress);
-      case 'holdExpanded':   return 1;
       case 'exhale':         return 1 - this._easeInOut(this._phaseProgress);
-      case 'holdContracted': return 0;
       default:               return 0;
     }
   }
@@ -130,7 +129,8 @@ export class BreathingMode {
     // --- Phase timer ---
     if (!this._deactivating) {
       const phaseElapsed = now - this._phaseStartTime;
-      this._phaseProgress = Math.min(1, phaseElapsed / PHASE_DURATION);
+      const phaseDuration = this._phase === 'inhale' ? INHALE_DURATION : EXHALE_DURATION;
+      this._phaseProgress = Math.min(1, phaseElapsed / phaseDuration);
       if (this._phaseProgress >= 1) {
         const idx = PHASES.indexOf(this._phase);
         this._phase = PHASES[(idx + 1) % PHASES.length];
