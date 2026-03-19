@@ -240,6 +240,50 @@
       color: #fff;
     }
 
+    /* Music button */
+    #music-btn {
+      position: fixed;
+      bottom: 24px;
+      left: 80px;
+      z-index: 10;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(0,0,0,0.25);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: rgba(255,255,255,0.8);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease, color 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #music-btn:hover {
+      background: rgba(0,0,0,0.4);
+      color: #fff;
+    }
+    #music-btn.playing {
+      background: rgba(0,0,0,0.4);
+      color: #fff;
+    }
+    #music-btn .bar { display: inline-block; width: 3px; background: currentColor; border-radius: 1.5px; margin: 0 1px; transition: height 0.3s ease; }
+    #music-btn .bar:nth-child(1) { height: 8px; }
+    #music-btn .bar:nth-child(2) { height: 14px; }
+    #music-btn .bar:nth-child(3) { height: 10px; }
+    #music-btn .bar:nth-child(4) { height: 16px; }
+    #music-btn.paused .bar { height: 3px !important; }
+    @keyframes bar-bounce {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(0.4); }
+    }
+    #music-btn.playing .bar:nth-child(1) { animation: bar-bounce 0.8s ease-in-out infinite 0s; }
+    #music-btn.playing .bar:nth-child(2) { animation: bar-bounce 0.8s ease-in-out infinite 0.2s; }
+    #music-btn.playing .bar:nth-child(3) { animation: bar-bounce 0.8s ease-in-out infinite 0.4s; }
+    #music-btn.playing .bar:nth-child(4) { animation: bar-bounce 0.8s ease-in-out infinite 0.1s; }
+
     #breathing-overlay {
       position: fixed;
       inset: 0;
@@ -280,6 +324,10 @@
     <button class="weather-tab" data-weather="rainy"><svg viewBox="0 0 24 24"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242M16 14v6M8 14v6M12 16v6"/></svg>雨</button>
   </div>
 
+  <!-- Background music -->
+  <audio id="bg-music" loop preload="auto" src="cobblestone_mornings.mp3"></audio>
+  <button id="music-btn" class="paused" title="音乐"><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span></button>
+
   <!-- Breathing button (left side, symmetric with add-koi on right) -->
   <button id="breathing-btn" title="呼吸模式"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg></button>
 
@@ -303,6 +351,21 @@
       btn.classList.add('active');
       if (window.setWeather) window.setWeather(btn.dataset.weather);
     });
+
+    // Music toggle
+    (() => {
+      const music = document.getElementById('bg-music');
+      const btn = document.getElementById('music-btn');
+      music.volume = 0.35;
+      btn.addEventListener('click', () => {
+        if (music.paused) {
+          music.play().then(() => { btn.classList.remove('paused'); btn.classList.add('playing'); });
+        } else {
+          music.pause();
+          btn.classList.remove('playing'); btn.classList.add('paused');
+        }
+      });
+    })();
 
     // Breathing button (standalone)
     document.getElementById('breathing-btn').addEventListener('click', () => {
