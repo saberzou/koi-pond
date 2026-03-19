@@ -352,14 +352,28 @@
       if (window.setWeather) window.setWeather(btn.dataset.weather);
     });
 
-    // Music toggle
+    // Music toggle — auto-play on first user interaction
     (() => {
       const music = document.getElementById('bg-music');
       const btn = document.getElementById('music-btn');
       music.volume = 0.35;
-      btn.addEventListener('click', () => {
+      const startMusic = () => {
+        music.play().then(() => { btn.classList.remove('paused'); btn.classList.add('playing'); }).catch(() => {});
+      };
+      // Try autoplay immediately; if blocked, start on first interaction
+      startMusic();
+      const onInteract = () => {
+        if (music.paused) startMusic();
+        document.removeEventListener('click', onInteract);
+        document.removeEventListener('touchstart', onInteract);
+      };
+      document.addEventListener('click', onInteract);
+      document.addEventListener('touchstart', onInteract);
+      // Toggle button
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
         if (music.paused) {
-          music.play().then(() => { btn.classList.remove('paused'); btn.classList.add('playing'); });
+          startMusic();
         } else {
           music.pause();
           btn.classList.remove('playing'); btn.classList.add('paused');
