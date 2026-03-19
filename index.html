@@ -396,15 +396,18 @@
         const active = isBreathing ? brMusic : bgMusic;
         active.play().then(() => { btn.classList.remove('paused'); btn.classList.add('playing'); }).catch(() => {});
       };
-      // Try autoplay; fallback to first interaction
+      // Try autoplay; fallback to first interaction (capture phase so stopPropagation doesn't block it)
       startMusic();
+      let started = false;
       const onInteract = () => {
-        if (bgMusic.paused && brMusic.paused) startMusic();
-        document.removeEventListener('click', onInteract);
-        document.removeEventListener('touchstart', onInteract);
+        if (started) return;
+        started = true;
+        startMusic();
+        document.removeEventListener('click', onInteract, true);
+        document.removeEventListener('touchstart', onInteract, true);
       };
-      document.addEventListener('click', onInteract);
-      document.addEventListener('touchstart', onInteract);
+      document.addEventListener('click', onInteract, true);
+      document.addEventListener('touchstart', onInteract, true);
       // Toggle button — mute/unmute both
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -429,11 +432,11 @@
         panel.classList.remove('visible');
         koiBtn && koiBtn.classList.remove('panel-open');
       }
-      if (window.toggleBreathing) window.toggleBreathing();
-      // Crossfade music
-      const isBreathing = window.isBreathingActive && window.isBreathingActive();
-      if (isBreathing && window._crossfadeToBreathing) window._crossfadeToBreathing();
-      else if (!isBreathing && window._crossfadeToNormal) window._crossfadeToNormal();
+      if (window.toggleBreathing) {
+        const nowBreathing = window.toggleBreathing();
+        if (nowBreathing && window._crossfadeToBreathing) window._crossfadeToBreathing();
+        else if (!nowBreathing && window._crossfadeToNormal) window._crossfadeToNormal();
+      }
     });
 
     // --- Breathing phase label loop ---
