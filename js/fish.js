@@ -200,7 +200,6 @@ export class Fish {
     // --- Shadow under fish ---
     ctx.globalAlpha = 0.12;
     ctx.fillStyle = '#000';
-    this._drawBodyPath(ctx, topPts, botPts);
     ctx.save();
     ctx.translate(-4, 5);
     ctx.scale(1.03, 1.03);

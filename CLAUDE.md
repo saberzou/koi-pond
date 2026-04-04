@@ -147,9 +147,13 @@ import { Fish } from './js/fish.js?v=40';  // was v=39
 
 UI text is in Chinese. Koi variety names have both Chinese (`name`) and English (`nameEn`) fields.
 
-## Known Incomplete Features
+## Rain System
 
-- `js/rain.js` — `RainRipple` and `RainManager` classes are implemented but not wired into the main `pond.js` loop. Rain visual effects currently use `lotus.js`'s `drawRainDrops()` instead.
+Two complementary rain effects run during rainy weather:
+- `js/rain.js` — `RainManager` spawns expanding ripples across the water surface (~10/sec at 60fps)
+- `lotus.js` `drawRainDrops()` — draws impact rings directly on lily pads
+
+Both are active when `weather === 'rainy'`. `RainManager` is started/stopped via `rainManager.start()` / `rainManager.stop()` inside `setWeather()`.
 
 ## Running Locally
 

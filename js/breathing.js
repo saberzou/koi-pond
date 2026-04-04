@@ -1,11 +1,11 @@
 // breathing.js — Breathing Mode for Koi Pond (Simple: inhale-exhale)
+import { TAIL_SPEED } from './config.js';
 
 const INHALE_DURATION = 4000; // ms
 const EXHALE_DURATION = 6000; // ms — slower exhale feels more calming
 const TRANSITION_DURATION = 2000; // ms for in/out transition
 const PHASES = ['inhale', 'exhale'];
 const BREATHING_SPEED_FACTOR = 0.4;
-const TAIL_SPEED_CONST = 0.08; // mirrors config.js TAIL_SPEED
 
 export class BreathingMode {
   constructor() {
@@ -202,7 +202,7 @@ export class BreathingMode {
       }
 
       // Tail animation (still animates, but slower)
-      f.tailPhase += TAIL_SPEED_CONST * (1 + spd * 0.5) * (0.35 + 0.65 * (1 - tp * 0.45));
+      f.tailPhase += TAIL_SPEED * (1 + spd * 0.5) * (0.35 + 0.65 * (1 - tp * 0.45));
     });
   }
 
