@@ -136,15 +136,28 @@ export class Fish {
     }
   }
 
-  // Build spine points with sinusoidal wave
+  // Build spine points with sinusoidal wave and turn arc
   _buildSpine() {
     const len = this.size * 2.2;
     const pts = [];
+
+    // During a turn the heading lags behind the velocity direction.
+    // That lag angle is the natural arc of the body: nose leads, tail follows.
+    const spd = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+    let turnBend = 0;
+    if (spd > 0.15) {
+      let diff = Math.atan2(this.vy, this.vx) - this.angle;
+      while (diff >  Math.PI) diff -= Math.PI * 2;
+      while (diff < -Math.PI) diff += Math.PI * 2;
+      turnBend = Math.max(-0.45, Math.min(0.45, diff)) * 0.4 * this.size;
+    }
+
     for (let i = 0; i <= SPINE_SEGMENTS; i++) {
       const t = i / SPINE_SEGMENTS;
-      // Wave increases toward tail
+      // Tail wave grows quadratically toward the tail
       const wave = Math.sin(this.tailPhase - t * Math.PI * this.waveFreq) * t * t * this.waveAmp * this.size;
-      pts.push({ x: -t * len + len * 0.3, y: wave }); // head at +x, tail at -x
+      // Turn arc: nose displaced toward new heading, fades linearly to zero at tail
+      pts.push({ x: -t * len + len * 0.3, y: wave + turnBend * (1 - t) });
     }
     return pts;
   }
