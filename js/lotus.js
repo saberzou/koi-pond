@@ -76,6 +76,7 @@ class LilyPad {
     ctx.rotate(this.rotation);
 
     // Draw pad with notch
+    const notchSize = 0.35;
     ctx.beginPath();
     for (let a = this.notchAngle + notchSize; a < this.notchAngle + Math.PI * 2; a += 0.1) {
       const px = Math.cos(a) * r;
