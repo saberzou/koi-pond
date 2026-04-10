@@ -25,10 +25,10 @@ export class Fish {
     this.fleeing = false;
 
     // Individual variation
-    this.bodyWidth = 0.28 + Math.random() * 0.08; // width ratio
+    this.bodyWidth = 0.32 + Math.random() * 0.07; // width ratio — chunkier
     this.tailWidth = 0.6 + Math.random() * 0.2;
     this.finSize = 0.7 + Math.random() * 0.4;
-    this.waveAmp = 0.12 + Math.random() * 0.06; // spine wave amplitude (subtle)
+    this.waveAmp = 0.09 + Math.random() * 0.04; // spine wave amplitude — gentler waggle
     this.waveFreq = 1.8 + Math.random() * 0.4;
 
     // Spots - random placement along body
@@ -149,19 +149,19 @@ export class Fish {
     return pts;
   }
 
-  // Width profile: fat in front, tapers to tail
+  // Width profile: round head with chubby cheeks, fat body, gentle taper
   _bodyHalfWidth(t) {
     const s = this.size;
-    const w = this.bodyWidth * s;
-    // Koi head: smooth round nose using sine curve
-    if (t < 0.15) {
-      // sine ease-out: 0 → w, creates a nice round bulge
-      return w * Math.sin((t / 0.15) * Math.PI * 0.5);
+    const bw = this.bodyWidth * s;
+    if (t < 0.20) {
+      // Nose rises into a chubby cheek dome that peaks ~15% wider than body
+      const ht = t / 0.20;
+      return bw * (Math.sin(ht * Math.PI * 0.5) + 0.35 * Math.sin(ht * Math.PI));
     }
-    if (t < 0.45) return w; // wide body plateau
-    // Taper to tail
-    const tailT = (t - 0.45) / 0.55;
-    return w * (1 - tailT * 0.75);
+    if (t < 0.50) return bw; // wide body plateau
+    // Gentle taper — less pointy toward tail
+    const tailT = (t - 0.50) / 0.50;
+    return bw * (1 - tailT * 0.62);
   }
 
   // Create a fish from a KOI_VARIETIES entry
@@ -262,65 +262,53 @@ export class Fish {
       ctx.fill();
     }
 
-    // --- Tail fin ---
-    ctx.globalAlpha = 0.55;
+    // --- Tail fin (soft rounded fan) ---
+    ctx.globalAlpha = 0.52;
     const tailPt = spine[SPINE_SEGMENTS];
-    const preTail = spine[SPINE_SEGMENTS - 1];
-    const tailAng = Math.atan2(tailPt.y - preTail.y, tailPt.x - preTail.x);
-    const tw = s * 0.5 * this.tailWidth;
-    ctx.beginPath();
-    ctx.moveTo(tailPt.x, tailPt.y);
-    ctx.quadraticCurveTo(
-      tailPt.x - s * 0.35, tailPt.y - tw,
-      tailPt.x - s * 0.55, tailPt.y - tw * 1.1
-    );
-    ctx.moveTo(tailPt.x, tailPt.y);
-    ctx.quadraticCurveTo(
-      tailPt.x - s * 0.35, tailPt.y + tw,
-      tailPt.x - s * 0.55, tailPt.y + tw * 1.1
-    );
-    ctx.fillStyle = this.color.body;
-    ctx.fill();
-
-    // Tail fill (fork shape)
+    const tw = s * 0.52 * this.tailWidth;
     ctx.beginPath();
     ctx.moveTo(tailPt.x, tailPt.y);
     ctx.bezierCurveTo(
-      tailPt.x - s * 0.2, tailPt.y - tw * 0.3,
-      tailPt.x - s * 0.4, tailPt.y - tw * 0.9,
-      tailPt.x - s * 0.55, tailPt.y - tw * 1.1
+      tailPt.x - s * 0.15, tailPt.y - tw * 0.45,
+      tailPt.x - s * 0.42, tailPt.y - tw * 1.05,
+      tailPt.x - s * 0.58, tailPt.y - tw * 1.15
+    );
+    // Rounded back edge instead of sharp fork
+    ctx.quadraticCurveTo(
+      tailPt.x - s * 0.72, tailPt.y,
+      tailPt.x - s * 0.58, tailPt.y + tw * 1.15
     );
     ctx.bezierCurveTo(
-      tailPt.x - s * 0.3, tailPt.y,
-      tailPt.x - s * 0.3, tailPt.y,
-      tailPt.x - s * 0.55, tailPt.y + tw * 1.1
-    );
-    ctx.bezierCurveTo(
-      tailPt.x - s * 0.4, tailPt.y + tw * 0.9,
-      tailPt.x - s * 0.2, tailPt.y + tw * 0.3,
+      tailPt.x - s * 0.42, tailPt.y + tw * 1.05,
+      tailPt.x - s * 0.15, tailPt.y + tw * 0.45,
       tailPt.x, tailPt.y
     );
-    ctx.globalAlpha = 0.5;
+    ctx.closePath();
     ctx.fillStyle = this.color.body;
     ctx.fill();
 
-    // --- Eye ---
+    // --- Eye (large and round for cute look) ---
     ctx.globalAlpha = 1;
-    const eyePt = spine[1];
-    const eyeHw = this._bodyHalfWidth(1 / SPINE_SEGMENTS);
-    const eyeR = s * 0.06;
+    const eyePt = spine[2];
+    const eyeHw = this._bodyHalfWidth(2 / SPINE_SEGMENTS);
+    const eyeR = s * 0.085;
     for (const side of [-1, 1]) {
-      const ex = eyePt.x - s * 0.08;
-      const ey = eyePt.y + side * eyeHw * 0.7;
-      // White
+      const ex = eyePt.x;
+      const ey = eyePt.y + side * eyeHw * 0.65;
+      // White sclera
       ctx.beginPath();
-      ctx.arc(ex, ey, eyeR * 1.5, 0, Math.PI * 2);
+      ctx.arc(ex, ey, eyeR * 1.65, 0, Math.PI * 2);
       ctx.fillStyle = '#fff';
       ctx.fill();
       // Pupil
       ctx.beginPath();
-      ctx.arc(ex + eyeR * 0.3, ey, eyeR, 0, Math.PI * 2);
-      ctx.fillStyle = '#111';
+      ctx.arc(ex + eyeR * 0.2, ey, eyeR, 0, Math.PI * 2);
+      ctx.fillStyle = '#1a1a1a';
+      ctx.fill();
+      // Sparkle highlight
+      ctx.beginPath();
+      ctx.arc(ex + eyeR * 0.55, ey - eyeR * 0.55, eyeR * 0.38, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff';
       ctx.fill();
     }
 
