@@ -1,10 +1,11 @@
 // pond.js — Main orchestrator
-import { Fish } from './fish.js?v=12';
+import { Fish } from './fish.js?v=15';
 import { RippleManager } from './ripple.js';
-import { LotusManager } from './lotus.js?v=9';
+import { LotusManager } from './lotus.js?v=10';
 import { Dragonfly } from './dragonfly.js?v=9';
 import { FISH_COUNT, FEAR_RADIUS } from './config.js';
-import { BreathingMode } from './breathing.js?v=1';
+import { BreathingMode } from './breathing.js?v=2';
+import { RainManager } from './rain.js';
 
 let canvas, ctx, w, h;
 let fish = [];
@@ -12,9 +13,11 @@ let ripples;
 let lotus;
 let dragonfly;
 let breathing;
+let rainManager;
 let liquidApp = null;
 let weather = 'sunny';
 let darknessAlpha = 0;
+let lastDragRippleTime = 0;
 
 function generatePondTexture() {
   const dpr = window.devicePixelRatio || 1;
@@ -46,8 +49,7 @@ function generatePondTexture() {
 }
 
 function initLiquid() {
-  const liquidCanvas = document.getElementById('liquid-canvas');
-  const dataUrl = generatePondTexture();
+  window.__pondTextureUrl = generatePondTexture();
 
   const script = document.createElement('script');
   script.type = 'module';
@@ -56,7 +58,7 @@ function initLiquid() {
     const canvas = document.getElementById('liquid-canvas');
     if (canvas) {
       const app = LiquidBackground(canvas);
-      app.loadImage('${dataUrl}');
+      app.loadImage(window.__pondTextureUrl);
       app.liquidPlane.material.metalness = 0.3;
       app.liquidPlane.material.roughness = 0.5;
       app.liquidPlane.uniforms.displacementScale.value = 0;
@@ -88,6 +90,8 @@ function resize() {
   canvas.style.height = h + 'px';
   ctx.setTransform(window.devicePixelRatio || 1, 0, 0, window.devicePixelRatio || 1, 0, 0);
   if (dragonfly) dragonfly.resize(w, h);
+  if (lotus) lotus.generate(w, h);
+  if (rainManager) rainManager.resize(w, h);
 }
 
 function handleInteraction(px, py) {
@@ -101,7 +105,11 @@ function handleInteraction(px, py) {
 
 function handleDrag(px, py) {
   if (breathing.isActive()) return;
-  ripples.add(px, py);
+  const now = performance.now();
+  if (now - lastDragRippleTime > 50) {
+    ripples.add(px, py);
+    lastDragRippleTime = now;
+  }
   lotus.nudge(px, py, 0.8);
   for (const f of fish) {
     f.flee(px, py);
@@ -133,8 +141,10 @@ function loop() {
     dragonfly.draw(ctx);
   }
 
-  // Rain splashes on lily pads
+  // Rain: surface ripples + splashes on lily pads
   if (weather === 'rainy') {
+    rainManager.update();
+    rainManager.draw(ctx);
     lotus.drawRainDrops(ctx);
   }
 
@@ -185,10 +195,16 @@ export function init() {
   lotus = new LotusManager(w, h);
   dragonfly = new Dragonfly(w, h);
   breathing = new BreathingMode();
+  rainManager = new RainManager(w, h);
 
   // Weather toggle — controls liquid displacement + rain ripples
   window.setWeather = (mode) => {
     weather = mode;
+    if (mode === 'rainy') {
+      rainManager.start();
+    } else {
+      rainManager.stop();
+    }
     const app = window.__liquidApp;
     if (app && !breathing.isActive()) {
       if (mode === 'rainy') {
