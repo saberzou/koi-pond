@@ -1,7 +1,7 @@
 // pond.js — Main orchestrator
-import { Fish } from './fish.js?v=15';
+import { Fish } from './fish.js?v=16';
 import { RippleManager } from './ripple.js';
-import { LotusManager } from './lotus.js?v=11';
+import { LotusManager } from './lotus.js?v=12';
 import { Dragonfly } from './dragonfly.js?v=9';
 import { FISH_COUNT, FEAR_RADIUS } from './config.js';
 import { BreathingMode } from './breathing.js?v=2';
@@ -72,7 +72,7 @@ function initLiquid() {
 function initFish() {
   fish = [];
   for (let i = 0; i < FISH_COUNT; i++) {
-    const size = 20 + Math.random() * 12;
+    const size = 10 + Math.random() * 8;
     fish.push(new Fish(
       80 + Math.random() * (w - 160),
       80 + Math.random() * (h - 160),

@@ -25,8 +25,8 @@ export class Fish {
     this.fleeing = false;
 
     // Individual variation
-    this.bodyWidth = 0.32 + Math.random() * 0.07; // width ratio — chunkier
-    this.tailWidth = 0.6 + Math.random() * 0.2;
+    this.bodyWidth = 0.36 + Math.random() * 0.08; // width ratio — stocky koi
+    this.tailWidth = 0.5 + Math.random() * 0.2;
     this.finSize = 0.7 + Math.random() * 0.4;
     this.waveAmp = 0.09 + Math.random() * 0.04; // spine wave amplitude — gentler waggle
     this.waveFreq = 1.8 + Math.random() * 0.4;
@@ -71,16 +71,8 @@ export class Fish {
       this.vy += (ay - this.vy) * TURN_RATE;
     }
 
-    for (const other of allFish) {
-      if (other === this) continue;
-      const dx = this.x - other.x;
-      const dy = this.y - other.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < 50 && dist > 0) {
-        this.vx += (dx / dist) * 0.15;
-        this.vy += (dy / dist) * 0.15;
-      }
-    }
+    // Fish swim on different depth layers — no collision avoidance,
+    // they can overlap and pass through each other naturally.
 
     const spd = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
     if (spd > MAX_SPEED) {
@@ -162,19 +154,33 @@ export class Fish {
     return pts;
   }
 
-  // Width profile: round head with chubby cheeks, fat body, gentle taper
+  // Width profile: pointed snout → broad shoulders → muscular peduncle → tail
   _bodyHalfWidth(t) {
     const s = this.size;
     const bw = this.bodyWidth * s;
-    if (t < 0.20) {
-      // Nose rises into a chubby cheek dome that peaks ~15% wider than body
-      const ht = t / 0.20;
-      return bw * (Math.sin(ht * Math.PI * 0.5) + 0.35 * Math.sin(ht * Math.PI));
+    if (t < 0.08) {
+      // Pointed snout — rises quickly
+      return bw * Math.sin((t / 0.08) * Math.PI * 0.5) * 0.55;
     }
-    if (t < 0.50) return bw; // wide body plateau
-    // Gentle taper — less pointy toward tail
-    const tailT = (t - 0.50) / 0.50;
-    return bw * (1 - tailT * 0.62);
+    if (t < 0.22) {
+      // Broad shoulders — fills out to max width
+      const k = (t - 0.08) / 0.14;
+      return bw * (0.55 + 0.45 * Math.sin(k * Math.PI * 0.5));
+    }
+    if (t < 0.75) {
+      // Long torso — holds girth, gradual taper
+      const k = (t - 0.22) / 0.53;
+      return bw * (1 - k * k * (3 - 2 * k) * 0.55);
+    }
+    if (t < 0.92) {
+      // Muscular peduncle — thick enough to look structural
+      const k = (t - 0.75) / 0.17;
+      const ease = k * k * (3 - 2 * k);
+      return bw * (0.45 - ease * 0.18);
+    }
+    // Tail root — slight flare into fin
+    const k = (t - 0.92) / 0.08;
+    return bw * (0.27 + k * 0.05);
   }
 
   // Create a fish from a KOI_VARIETIES entry
@@ -275,53 +281,41 @@ export class Fish {
       ctx.fill();
     }
 
-    // --- Tail fin (soft rounded fan) ---
+    // --- Tail fin (proportional, not oversized) ---
     ctx.globalAlpha = 0.52;
     const tailPt = spine[SPINE_SEGMENTS];
-    const tw = s * 0.52 * this.tailWidth;
+    const tw = s * 0.48 * this.tailWidth;
     ctx.beginPath();
     ctx.moveTo(tailPt.x, tailPt.y);
     ctx.bezierCurveTo(
-      tailPt.x - s * 0.15, tailPt.y - tw * 0.45,
-      tailPt.x - s * 0.42, tailPt.y - tw * 1.05,
-      tailPt.x - s * 0.58, tailPt.y - tw * 1.15
+      tailPt.x - s * 0.12, tailPt.y - tw * 0.40,
+      tailPt.x - s * 0.35, tailPt.y - tw * 0.95,
+      tailPt.x - s * 0.48, tailPt.y - tw * 1.05
     );
-    // Rounded back edge instead of sharp fork
     ctx.quadraticCurveTo(
-      tailPt.x - s * 0.72, tailPt.y,
-      tailPt.x - s * 0.58, tailPt.y + tw * 1.15
+      tailPt.x - s * 0.58, tailPt.y,
+      tailPt.x - s * 0.48, tailPt.y + tw * 1.05
     );
     ctx.bezierCurveTo(
-      tailPt.x - s * 0.42, tailPt.y + tw * 1.05,
-      tailPt.x - s * 0.15, tailPt.y + tw * 0.45,
+      tailPt.x - s * 0.35, tailPt.y + tw * 0.95,
+      tailPt.x - s * 0.12, tailPt.y + tw * 0.40,
       tailPt.x, tailPt.y
     );
     ctx.closePath();
     ctx.fillStyle = this.color.body;
     ctx.fill();
 
-    // --- Eye (large and round for cute look) ---
-    ctx.globalAlpha = 1;
-    const eyePt = spine[2];
-    const eyeHw = this._bodyHalfWidth(2 / SPINE_SEGMENTS);
-    const eyeR = s * 0.085;
+    // --- Eye (small dot — top-down view) ---
+    ctx.globalAlpha = 0.85;
+    const eyePt = spine[1];
+    const eyeHw = this._bodyHalfWidth(1 / SPINE_SEGMENTS);
+    const eyeR = s * 0.035;
     for (const side of [-1, 1]) {
       const ex = eyePt.x;
-      const ey = eyePt.y + side * eyeHw * 0.65;
-      // White sclera
+      const ey = eyePt.y + side * eyeHw * 0.55;
       ctx.beginPath();
-      ctx.arc(ex, ey, eyeR * 1.65, 0, Math.PI * 2);
-      ctx.fillStyle = '#fff';
-      ctx.fill();
-      // Pupil
-      ctx.beginPath();
-      ctx.arc(ex + eyeR * 0.2, ey, eyeR, 0, Math.PI * 2);
+      ctx.arc(ex, ey, eyeR, 0, Math.PI * 2);
       ctx.fillStyle = '#1a1a1a';
-      ctx.fill();
-      // Sparkle highlight
-      ctx.beginPath();
-      ctx.arc(ex + eyeR * 0.55, ey - eyeR * 0.55, eyeR * 0.38, 0, Math.PI * 2);
-      ctx.fillStyle = '#fff';
       ctx.fill();
     }
 
