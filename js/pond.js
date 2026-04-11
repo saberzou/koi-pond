@@ -72,7 +72,7 @@ function initLiquid() {
 function initFish() {
   fish = [];
   for (let i = 0; i < FISH_COUNT; i++) {
-    const size = 10 + Math.random() * 8;
+    const size = 16 + Math.random() * 4;
     fish.push(new Fish(
       80 + Math.random() * (w - 160),
       80 + Math.random() * (h - 160),
@@ -271,7 +271,7 @@ export function addFish(variety) {
   const margin = 80;
   const x = margin + Math.random() * (w - margin * 2);
   const y = margin + Math.random() * (h - margin * 2);
-  const size = 20 + Math.random() * 12;
+  const size = 16 + Math.random() * 4;
   const f = Fish.fromVariety(x, y, size, variety);
   f.varietyId = variety.nameEn;
   fish.push(f);
