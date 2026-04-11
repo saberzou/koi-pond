@@ -25,9 +25,9 @@ export class Fish {
     this.fleeing = false;
 
     // Individual variation
-    this.bodyWidth = 0.36 + Math.random() * 0.08; // width ratio — stocky koi
-    this.tailWidth = 0.5 + Math.random() * 0.2;
-    this.finSize = 0.7 + Math.random() * 0.4;
+    this.bodyWidth = 0.38 + Math.random() * 0.06; // width ratio — stocky like reference
+    this.tailWidth = 0.55 + Math.random() * 0.15; // forked tail span
+    this.finSize = 0.5 + Math.random() * 0.3; // dorsal fin height
     this.waveAmp = 0.09 + Math.random() * 0.04; // spine wave amplitude — gentler waggle
     this.waveFreq = 1.8 + Math.random() * 0.4;
 
@@ -154,33 +154,39 @@ export class Fish {
     return pts;
   }
 
-  // Width profile: pointed snout → broad shoulders → muscular peduncle → tail
+  // Width profile: blunt rounded snout → fat body peak at 30% → dramatic pinch at 80% → tail
+  // Based on reference silhouette: teardrop body with thin caudal peduncle
   _bodyHalfWidth(t) {
     const s = this.size;
     const bw = this.bodyWidth * s;
-    if (t < 0.08) {
-      // Pointed snout — rises quickly
-      return bw * Math.sin((t / 0.08) * Math.PI * 0.5) * 0.55;
+    if (t < 0.05) {
+      // Blunt rounded snout — opens wide quickly (not pointed)
+      return bw * Math.sin((t / 0.05) * Math.PI * 0.5) * 0.65;
     }
-    if (t < 0.22) {
-      // Broad shoulders — fills out to max width
-      const k = (t - 0.08) / 0.14;
-      return bw * (0.55 + 0.45 * Math.sin(k * Math.PI * 0.5));
+    if (t < 0.30) {
+      // Swells to maximum — peak at ~30%
+      const k = (t - 0.05) / 0.25;
+      return bw * (0.65 + 0.35 * Math.sin(k * Math.PI * 0.5));
     }
-    if (t < 0.75) {
-      // Long torso — holds girth, gradual taper
-      const k = (t - 0.22) / 0.53;
-      return bw * (1 - k * k * (3 - 2 * k) * 0.55);
+    if (t < 0.65) {
+      // Gradual taper through midsection
+      const k = (t - 0.30) / 0.35;
+      return bw * (1.0 - k * k * 0.45);
+    }
+    if (t < 0.80) {
+      // Accelerating taper into peduncle
+      const k = (t - 0.65) / 0.15;
+      const ease = k * k * (3 - 2 * k);
+      return bw * (0.55 - ease * 0.42);
     }
     if (t < 0.92) {
-      // Muscular peduncle — thick enough to look structural
-      const k = (t - 0.75) / 0.17;
-      const ease = k * k * (3 - 2 * k);
-      return bw * (0.45 - ease * 0.18);
+      // Thin caudal peduncle — dramatic pinch (like reference)
+      const k = (t - 0.80) / 0.12;
+      return bw * (0.13 - k * 0.04);
     }
-    // Tail root — slight flare into fin
+    // Tail root — slight flare into forked fin
     const k = (t - 0.92) / 0.08;
-    return bw * (0.27 + k * 0.05);
+    return bw * (0.09 + k * 0.06);
   }
 
   // Create a fish from a KOI_VARIETIES entry
@@ -251,54 +257,71 @@ export class Fish {
       ctx.fill();
     }
 
-    // --- Dorsal fin ---
-    ctx.globalAlpha = 0.35;
-    const dStart = spine[2];
-    const dEnd = spine[5];
-    const dMid = spine[3];
+    // --- Dorsal fin (small triangular, at ~45% like reference) ---
+    ctx.globalAlpha = 0.4;
+    const dIdx = Math.round(SPINE_SEGMENTS * 0.42);
+    const dStart = spine[dIdx];
+    const dMid = spine[dIdx + 1];
+    const dEnd = spine[dIdx + 2];
+    const dHw = this._bodyHalfWidth(dIdx / SPINE_SEGMENTS);
     ctx.beginPath();
-    ctx.moveTo(dStart.x, dStart.y - this._bodyHalfWidth(2 / SPINE_SEGMENTS));
-    ctx.quadraticCurveTo(
-      dMid.x, dMid.y - this._bodyHalfWidth(3 / SPINE_SEGMENTS) - s * 0.25 * this.finSize,
-      dEnd.x, dEnd.y - this._bodyHalfWidth(5 / SPINE_SEGMENTS)
-    );
+    ctx.moveTo(dStart.x, dStart.y - dHw);
+    ctx.lineTo(dMid.x, dMid.y - dHw - s * 0.18 * this.finSize);
+    ctx.lineTo(dEnd.x, dEnd.y - this._bodyHalfWidth((dIdx + 2) / SPINE_SEGMENTS));
+    ctx.closePath();
     ctx.fillStyle = this.color.body;
     ctx.fill();
 
-    // --- Pectoral fins (pair) ---
+    // --- Pectoral fins (small nubs at ~35%, matching reference) ---
     ctx.globalAlpha = 0.3;
-    const finSwing = Math.sin(this.tailPhase * 0.6) * 0.3;
-    const pBase = spine[3];
-    const pHw = this._bodyHalfWidth(3 / SPINE_SEGMENTS);
+    const finSwing = Math.sin(this.tailPhase * 0.6) * 0.15;
+    const pIdx = Math.round(SPINE_SEGMENTS * 0.33);
+    const pBase = spine[pIdx];
+    const pHw = this._bodyHalfWidth(pIdx / SPINE_SEGMENTS);
     for (const side of [-1, 1]) {
       ctx.beginPath();
-      ctx.moveTo(pBase.x, pBase.y + side * pHw);
-      ctx.quadraticCurveTo(
-        pBase.x - s * 0.4, pBase.y + side * (pHw + s * 0.3 * this.finSize + finSwing * s * side),
-        pBase.x - s * 0.6, pBase.y + side * (pHw + s * 0.1)
-      );
+      ctx.moveTo(pBase.x + s * 0.05, pBase.y + side * pHw);
+      ctx.lineTo(pBase.x - s * 0.15, pBase.y + side * (pHw + s * 0.12 + finSwing * s * side));
+      ctx.lineTo(pBase.x - s * 0.25, pBase.y + side * (pHw + s * 0.02));
+      ctx.closePath();
       ctx.fillStyle = this.color.body;
       ctx.fill();
     }
 
-    // --- Tail fin (proportional, not oversized) ---
-    ctx.globalAlpha = 0.52;
+    // --- Tail fin (deeply forked V-shape, matching reference) ---
+    ctx.globalAlpha = 0.65;
     const tailPt = spine[SPINE_SEGMENTS];
-    const tw = s * 0.48 * this.tailWidth;
+    const tw = s * 0.42 * this.tailWidth;
+    // Upper lobe
     ctx.beginPath();
     ctx.moveTo(tailPt.x, tailPt.y);
     ctx.bezierCurveTo(
-      tailPt.x - s * 0.12, tailPt.y - tw * 0.40,
-      tailPt.x - s * 0.35, tailPt.y - tw * 0.95,
-      tailPt.x - s * 0.48, tailPt.y - tw * 1.05
+      tailPt.x - s * 0.08, tailPt.y - tw * 0.25,
+      tailPt.x - s * 0.22, tailPt.y - tw * 0.75,
+      tailPt.x - s * 0.38, tailPt.y - tw * 1.15
+    );
+    // Rounded lobe tip
+    ctx.quadraticCurveTo(
+      tailPt.x - s * 0.42, tailPt.y - tw * 1.0,
+      tailPt.x - s * 0.30, tailPt.y - tw * 0.55
+    );
+    // V-notch (deep fork)
+    ctx.quadraticCurveTo(
+      tailPt.x - s * 0.18, tailPt.y - tw * 0.08,
+      tailPt.x - s * 0.14, tailPt.y
+    );
+    // Lower lobe (mirror)
+    ctx.quadraticCurveTo(
+      tailPt.x - s * 0.18, tailPt.y + tw * 0.08,
+      tailPt.x - s * 0.30, tailPt.y + tw * 0.55
     );
     ctx.quadraticCurveTo(
-      tailPt.x - s * 0.58, tailPt.y,
-      tailPt.x - s * 0.48, tailPt.y + tw * 1.05
+      tailPt.x - s * 0.42, tailPt.y + tw * 1.0,
+      tailPt.x - s * 0.38, tailPt.y + tw * 1.15
     );
     ctx.bezierCurveTo(
-      tailPt.x - s * 0.35, tailPt.y + tw * 0.95,
-      tailPt.x - s * 0.12, tailPt.y + tw * 0.40,
+      tailPt.x - s * 0.22, tailPt.y + tw * 0.75,
+      tailPt.x - s * 0.08, tailPt.y + tw * 0.25,
       tailPt.x, tailPt.y
     );
     ctx.closePath();
