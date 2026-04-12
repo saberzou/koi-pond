@@ -6,6 +6,7 @@ import { Dragonfly } from './dragonfly.js?v=9';
 import { FISH_COUNT, FEAR_RADIUS } from './config.js';
 import { BreathingMode } from './breathing.js?v=2';
 import { RainManager } from './rain.js';
+import { Duck } from './duck.js?v=1';
 
 let canvas, ctx, w, h;
 let fish = [];
@@ -14,6 +15,7 @@ let lotus;
 let dragonfly;
 let breathing;
 let rainManager;
+let duck;
 let liquidApp = null;
 let weather = 'sunny';
 let darknessAlpha = 0;
@@ -92,6 +94,7 @@ function resize() {
   if (dragonfly) dragonfly.resize(w, h);
   if (lotus) lotus.generate(w, h);
   if (rainManager) rainManager.resize(w, h);
+  if (duck) duck.resize(w, h);
 }
 
 function handleInteraction(px, py) {
@@ -100,6 +103,7 @@ function handleInteraction(px, py) {
   for (const f of fish) {
     f.flee(px, py);
   }
+  if (duck) duck.poke(px, py);
   lotus.nudge(px, py, 1.5);
 }
 
@@ -122,14 +126,24 @@ function loop() {
   // Breathing mode overrides normal fish movement
   if (breathing.isActive()) {
     breathing.update(fish, w, h);
+    if (duck) {
+      duck.setBreathingSlowdown(0.3);
+      duck.update(w, h, ripples, fish);
+    }
   } else {
     fish.forEach(f => f.update(w, h, fish));
+    if (duck) {
+      duck.setBreathingSlowdown(1);
+      duck.update(w, h, ripples, fish);
+    }
   }
 
   // Progress ring (drawn behind fish)
   breathing.drawRing(ctx, w, h);
 
   fish.forEach(f => f.draw(ctx));
+  // Duck drawn after fish (on the surface)
+  if (duck) duck.draw(ctx);
   ripples.update();
   ripples.draw(ctx);
   lotus.update();
@@ -196,6 +210,7 @@ export function init() {
   dragonfly = new Dragonfly(w, h);
   breathing = new BreathingMode();
   rainManager = new RainManager(w, h);
+  duck = new Duck(w * 0.3 + Math.random() * w * 0.4, h * 0.3 + Math.random() * h * 0.4);
 
   // Weather toggle — controls liquid displacement + rain ripples
   window.setWeather = (mode) => {
