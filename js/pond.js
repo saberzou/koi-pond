@@ -2,11 +2,11 @@
 import { Fish } from './fish.js?v=17';
 import { RippleManager } from './ripple.js';
 import { LotusManager } from './lotus.js?v=12';
-import { Dragonfly } from './dragonfly.js?v=9';
+import { Dragonfly } from './dragonfly.js?v=10';
 import { FISH_COUNT, FEAR_RADIUS } from './config.js';
 import { BreathingMode } from './breathing.js?v=2';
 import { RainManager } from './rain.js';
-import { Duck } from './duck.js?v=1';
+import { Duck } from './duck.js?v=2';
 
 let canvas, ctx, w, h;
 let fish = [];
