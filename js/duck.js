@@ -8,7 +8,7 @@ const DUCK_TURN_RATE = 0.015;
 // Fish are 16-20px. Duck body length should be similar (~18px effective)
 // but total visual footprint much rounder/wider → 40px gives the right
 // oval silhouette that reads as "duck, not fish" at zen scale.
-const DUCK_SIZE = 40;
+const DUCK_SIZE = 55;
 const DUCK_AVOIDANCE_FORCE = FEAR_FORCE * 0.35;
 const CURIOSITY_BOOST = 1.8;
 
@@ -52,7 +52,7 @@ export class Duck {
     }
   }
 
-  update(w, h, ripples, fish) {
+  update(w, h, ripples, fish, lotusManager) {
     // Wander steering
     this.wanderTimer -= 1;
     if (this.wanderTimer <= 0) {
@@ -99,6 +99,21 @@ export class Duck {
     if (this.x > w - margin) { this.vx -= softEdge; this.targetAngle = Math.PI; }
     if (this.y < margin) { this.vy += softEdge; this.targetAngle = Math.PI / 2; }
     if (this.y > h - margin) { this.vy -= softEdge; this.targetAngle = -Math.PI / 2; }
+
+    // Lotus avoidance — duck swims around lily pads, never under them
+    if (lotusManager && lotusManager.pads) {
+      for (const pad of lotusManager.pads) {
+        const dx = this.x - pad.x;
+        const dy = this.y - pad.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const avoidDist = pad.size + this.size * 0.6;
+        if (dist < avoidDist && dist > 0) {
+          const strength = (1 - dist / avoidDist) * 0.04;
+          this.vx += (dx / dist) * strength;
+          this.vy += (dy / dist) * strength;
+        }
+      }
+    }
 
     // Paddle phase
     this.paddlePhase += 0.06 * (1 + spdNow * 0.5);

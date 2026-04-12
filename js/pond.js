@@ -128,13 +128,13 @@ function loop() {
     breathing.update(fish, w, h);
     if (duck) {
       duck.setBreathingSlowdown(0.3);
-      duck.update(w, h, ripples, fish);
+      duck.update(w, h, ripples, fish, lotus);
     }
   } else {
     fish.forEach(f => f.update(w, h, fish));
     if (duck) {
       duck.setBreathingSlowdown(1);
-      duck.update(w, h, ripples, fish);
+      duck.update(w, h, ripples, fish, lotus);
     }
   }
 
@@ -142,12 +142,12 @@ function loop() {
   breathing.drawRing(ctx, w, h);
 
   fish.forEach(f => f.draw(ctx));
-  // Duck drawn after fish (on the surface)
-  if (duck) duck.draw(ctx);
   ripples.update();
   ripples.draw(ctx);
   lotus.update();
   lotus.draw(ctx);
+  // Duck drawn AFTER lotus — it's on the water surface, never under lily pads
+  if (duck) duck.draw(ctx);
 
   // Dragonfly only in sunny weather, paused during breathing
   if (weather !== 'rainy' && !breathing.isActive()) {
