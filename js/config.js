@@ -48,8 +48,8 @@ export const RIPPLE_DURATION = 60; // frames
 // Duck constants
 export const DUCK_SPEED = 0.52;           // WANDER_SPEED * 0.65
 export const DUCK_WAKE_INTERVAL_MS = 90;  // ms between wake ripples
-export const DUCK_AVOID_RADIUS = 65;      // px — fish gently clear this zone
-export const DUCK_NUDGE_RADIUS = 90;      // px — curious reaction to nearby taps
+export const DUCK_AVOID_RADIUS = 85;      // px — fish gently clear this zone (scaled for 40px duck)
+export const DUCK_NUDGE_RADIUS = 110;     // px — curious reaction to nearby taps
 // Keep for backward compat (initial fish)
 export const FISH_COLORS = [
   { body: '#E8611A', spots: '#FFFFFF', belly: '#F5D6B8' }, // orange/white

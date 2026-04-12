@@ -3,7 +3,12 @@ import { FEAR_FORCE, DUCK_SPEED, DUCK_WAKE_INTERVAL_MS, DUCK_AVOID_RADIUS, DUCK_
 
 const DUCK_MAX_SPEED = 2.5;
 const DUCK_TURN_RATE = 0.015;
-const DUCK_SIZE = 28;
+// Real proportions: a duck body ~50-55cm vs koi ~60cm, but from above
+// the duck's feather spread makes it appear ~2.5x wider than a fish.
+// Fish are 16-20px. Duck body length should be similar (~18px effective)
+// but total visual footprint much rounder/wider → 40px gives the right
+// oval silhouette that reads as "duck, not fish" at zen scale.
+const DUCK_SIZE = 40;
 const DUCK_AVOIDANCE_FORCE = FEAR_FORCE * 0.35;
 const CURIOSITY_BOOST = 1.8;
 
@@ -87,8 +92,8 @@ export class Duck {
       this.angle += diff * 0.06;
     }
 
-    // Edge avoidance
-    const margin = 80;
+    // Edge avoidance — larger margin for bigger duck
+    const margin = 100;
     const softEdge = 0.015;
     if (this.x < margin) { this.vx += softEdge; this.targetAngle = 0; }
     if (this.x > w - margin) { this.vx -= softEdge; this.targetAngle = Math.PI; }
