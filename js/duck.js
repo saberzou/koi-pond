@@ -163,8 +163,8 @@ export class Duck {
     const bob = this.bobActive ? Math.sin(this.bobPhase) * 1.5 : 0;
 
     // --- Shadow ---
-    ctx.globalAlpha = 0.1;
-    ctx.fillStyle = '#000';
+    ctx.globalAlpha = 0.55;
+    ctx.fillStyle = '#281818';
     ctx.save();
     ctx.translate(-3, 4);
     ctx.scale(1.05, 1.05);
@@ -190,7 +190,7 @@ export class Duck {
     ctx.stroke();
 
     // --- Body (white oval) ---
-    ctx.globalAlpha = 0.9;
+    ctx.globalAlpha = 1;
     const bodyGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, s * 0.5);
     bodyGrad.addColorStop(0, '#F0E4D0');
     bodyGrad.addColorStop(0.6, '#E8DCC8');
@@ -239,7 +239,7 @@ export class Duck {
     ctx.fill();
 
     // --- Neck + Head (small circle extending forward) ---
-    ctx.globalAlpha = 0.9;
+    ctx.globalAlpha = 1;
     const headX = s * 0.42 + bob;
     const headY = 0;
     const headR = s * 0.17;
@@ -261,7 +261,7 @@ export class Duck {
     ctx.fill();
 
     // --- Beak (small orange triangle) ---
-    ctx.globalAlpha = 0.85;
+    ctx.globalAlpha = 1;
     const beakX = headX + headR * 0.8 + bob * 0.5;
     ctx.fillStyle = '#D4722A';
     ctx.beginPath();
@@ -272,7 +272,7 @@ export class Duck {
     ctx.fill();
 
     // --- Eyes ---
-    ctx.globalAlpha = 0.9;
+    ctx.globalAlpha = 1;
     const eyeR = s * 0.025;
     for (const side of [-1, 1]) {
       ctx.beginPath();

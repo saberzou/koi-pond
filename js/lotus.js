@@ -74,7 +74,8 @@ class LilyPad {
       ctx.lineTo(px, py);
     }
     ctx.closePath();
-    ctx.fillStyle = 'rgba(20,12,12,0.55)';
+    ctx.fillStyle = '#281818';
+    ctx.globalAlpha = 0.55;
     ctx.fill();
     ctx.restore();
 
