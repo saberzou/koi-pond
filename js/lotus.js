@@ -65,7 +65,7 @@ class LilyPad {
     ctx.save();
     ctx.translate(8, 10);
     const shadowGrad = ctx.createRadialGradient(0, 0, r * 0.3, 0, 0, r * 1.2);
-    shadowGrad.addColorStop(0, 'rgba(40,24,24,0.22)');
+    shadowGrad.addColorStop(0, 'rgba(40,24,24,0.45)');
     shadowGrad.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.beginPath();
     ctx.arc(0, 0, r * 1.2, 0, Math.PI * 2);
