@@ -91,7 +91,7 @@ class LilyPad {
     }
     ctx.closePath();
     ctx.fillStyle = this.color;
-    ctx.globalAlpha = 0.85;
+    ctx.globalAlpha = 1;
     ctx.fill();
 
     // Vein lines
