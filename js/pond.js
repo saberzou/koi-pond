@@ -30,7 +30,7 @@ function generatePondTexture() {
   c.scale(dpr, dpr);
 
   // Base pond color — simple blue-green
-  c.fillStyle = '#3D7A7E';
+  c.fillStyle = '#78A8B8';
   c.fillRect(0, 0, w, h);
 
   // Soft light patches
@@ -40,8 +40,8 @@ function generatePondTexture() {
     const gy = Math.random() * h;
     const gr = w * (0.15 + Math.random() * 0.25);
     const g = c.createRadialGradient(gx, gy, 0, gx, gy, gr);
-    g.addColorStop(0, `rgba(92,128,133,${0.1 + Math.random() * 0.08})`);
-    g.addColorStop(1, 'rgba(92,128,133,0)');
+    g.addColorStop(0, `rgba(120,168,184,${0.1 + Math.random() * 0.08})`);
+    g.addColorStop(1, 'rgba(120,168,184,0)');
     c.fillStyle = g;
     c.fillRect(0, 0, w, h);
   }

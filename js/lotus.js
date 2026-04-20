@@ -1,10 +1,10 @@
 // lotus.js — Pixel-art lotus flowers and lily pads
 
-const PAD_COLORS = ['#7A9E3B', '#8AAD45', '#6E8F32'];
+const PAD_COLORS = ['#A8A858', '#989848', '#687838', '#586828'];
 const FLOWER_COLORS = [
-  { petals: '#F5C6D0', center: '#F0E68C' }, // pink
-  { petals: '#FFFFFF', center: '#F5E6A3' },  // white
-  { petals: '#F0B8C8', center: '#FFD700' },  // rose
+  { petals: '#F0E4D0', center: '#D4722A' }, // cream/burnt orange
+  { petals: '#F0E4D0', center: '#D4722A' }, // cream/burnt orange
+  { petals: '#F0E4D0', center: '#D4722A' }, // cream/burnt orange
 ];
 
 class LilyPad {
@@ -65,7 +65,7 @@ class LilyPad {
     ctx.save();
     ctx.translate(8, 10);
     const shadowGrad = ctx.createRadialGradient(0, 0, r * 0.3, 0, 0, r * 1.2);
-    shadowGrad.addColorStop(0, 'rgba(0,0,0,0.18)');
+    shadowGrad.addColorStop(0, 'rgba(40,24,24,0.22)');
     shadowGrad.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.beginPath();
     ctx.arc(0, 0, r * 1.2, 0, Math.PI * 2);
@@ -90,7 +90,7 @@ class LilyPad {
     ctx.fill();
 
     // Vein lines
-    ctx.strokeStyle = 'rgba(20,60,30,0.2)';
+    ctx.strokeStyle = 'rgba(40,60,20,0.2)';
     ctx.lineWidth = 0.5;
     for (let i = 0; i < 5; i++) {
       const a = this.notchAngle + notchSize + (i / 5) * (Math.PI * 2 - notchSize * 2);
@@ -197,7 +197,7 @@ class LotusFlower {
       const dr = s * 0.08;
       ctx.beginPath();
       ctx.arc(Math.cos(a) * dr, Math.sin(a) * dr, 1, 0, Math.PI * 2);
-      ctx.fillStyle = '#C8A800';
+      ctx.fillStyle = '#D4722A';
       ctx.fill();
     }
 

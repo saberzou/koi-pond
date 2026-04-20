@@ -192,9 +192,9 @@ export class Duck {
     // --- Body (white oval) ---
     ctx.globalAlpha = 0.9;
     const bodyGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, s * 0.5);
-    bodyGrad.addColorStop(0, '#FAFAFA');
-    bodyGrad.addColorStop(0.6, '#F0EDE8');
-    bodyGrad.addColorStop(1, '#E8E4DE');
+    bodyGrad.addColorStop(0, '#F0E4D0');
+    bodyGrad.addColorStop(0.6, '#E8DCC8');
+    bodyGrad.addColorStop(1, '#DED4C0');
     ctx.fillStyle = bodyGrad;
     ctx.beginPath();
     ctx.ellipse(0, 0, s * 0.5, s * 0.35, 0, 0, Math.PI * 2);
@@ -202,7 +202,7 @@ export class Duck {
 
     // Subtle body edge
     ctx.globalAlpha = 0.15;
-    ctx.strokeStyle = '#C8C0B4';
+    ctx.strokeStyle = '#C8B8A4';
     ctx.lineWidth = 0.5;
     ctx.beginPath();
     ctx.ellipse(0, 0, s * 0.5, s * 0.35, 0, 0, Math.PI * 2);
@@ -210,7 +210,7 @@ export class Duck {
 
     // --- Wing lines (subtle feather texture) ---
     ctx.globalAlpha = 0.08;
-    ctx.strokeStyle = '#A09888';
+    ctx.strokeStyle = '#A09080';
     ctx.lineWidth = 0.6;
     for (const side of [-1, 1]) {
       ctx.beginPath();
@@ -220,7 +220,7 @@ export class Duck {
 
     // --- Tail feathers (small tuft at the back) ---
     ctx.globalAlpha = 0.5;
-    ctx.fillStyle = '#E8E4DE';
+    ctx.fillStyle = '#DED4C0';
     ctx.beginPath();
     ctx.moveTo(-s * 0.48, 0);
     ctx.lineTo(-s * 0.68, -s * 0.08);
@@ -230,7 +230,7 @@ export class Duck {
 
     // Tail tip highlight
     ctx.globalAlpha = 0.3;
-    ctx.fillStyle = '#F5F2EE';
+    ctx.fillStyle = '#E8DCC8';
     ctx.beginPath();
     ctx.moveTo(-s * 0.5, 0);
     ctx.lineTo(-s * 0.65, -s * 0.04);
@@ -245,7 +245,7 @@ export class Duck {
     const headR = s * 0.17;
 
     // Neck connection
-    ctx.fillStyle = '#F5F2EE';
+    ctx.fillStyle = '#E8DCC8';
     ctx.beginPath();
     ctx.moveTo(s * 0.35, -s * 0.1);
     ctx.quadraticCurveTo(headX - headR * 0.3, -headR * 0.6, headX, headY - headR * 0.5);
@@ -255,7 +255,7 @@ export class Duck {
     ctx.fill();
 
     // Head circle
-    ctx.fillStyle = '#FAFAFA';
+    ctx.fillStyle = '#F0E4D0';
     ctx.beginPath();
     ctx.arc(headX, headY, headR, 0, Math.PI * 2);
     ctx.fill();
@@ -263,7 +263,7 @@ export class Duck {
     // --- Beak (small orange triangle) ---
     ctx.globalAlpha = 0.85;
     const beakX = headX + headR * 0.8 + bob * 0.5;
-    ctx.fillStyle = '#E8943A';
+    ctx.fillStyle = '#D4722A';
     ctx.beginPath();
     ctx.moveTo(beakX + s * 0.12, 0);
     ctx.lineTo(beakX - s * 0.02, -s * 0.05);
@@ -284,7 +284,7 @@ export class Duck {
     // --- Paddle feet (subtle, visible below body) ---
     ctx.globalAlpha = 0.2;
     const paddleSwing = Math.sin(this.paddlePhase) * 0.3;
-    ctx.fillStyle = '#E8943A';
+    ctx.fillStyle = '#D4722A';
     for (const side of [-1, 1]) {
       ctx.save();
       ctx.translate(-s * 0.15, side * s * 0.38);
