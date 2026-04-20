@@ -61,15 +61,20 @@ class LilyPad {
     ctx.save();
     ctx.translate(x, y);
 
-    // Drop shadow on pond floor (radial gradient, no ctx.filter)
+    // Drop shadow — hard edge, matches pad shape
     ctx.save();
     ctx.translate(8, 10);
-    const shadowGrad = ctx.createRadialGradient(0, 0, r * 0.3, 0, 0, r * 1.2);
-    shadowGrad.addColorStop(0, 'rgba(40,24,24,0.45)');
-    shadowGrad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.rotate(this.rotation);
+    const notchS = 0.35;
     ctx.beginPath();
-    ctx.arc(0, 0, r * 1.2, 0, Math.PI * 2);
-    ctx.fillStyle = shadowGrad;
+    for (let a = this.notchAngle + notchS; a < this.notchAngle + Math.PI * 2; a += 0.1) {
+      const px = Math.cos(a) * r;
+      const py = Math.sin(a) * r;
+      if (a === this.notchAngle + notchS) ctx.moveTo(0, 0);
+      ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(20,12,12,0.55)';
     ctx.fill();
     ctx.restore();
 
