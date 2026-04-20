@@ -163,7 +163,7 @@ export class Duck {
     const bob = this.bobActive ? Math.sin(this.bobPhase) * 1.5 : 0;
 
     // --- Shadow ---
-    ctx.globalAlpha = 0.55;
+    ctx.globalAlpha = 1;
     ctx.fillStyle = '#281818';
     ctx.save();
     ctx.translate(-3, 4);

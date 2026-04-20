@@ -75,7 +75,6 @@ class LilyPad {
     }
     ctx.closePath();
     ctx.fillStyle = '#281818';
-    ctx.globalAlpha = 0.55;
     ctx.fill();
     ctx.restore();
 
