@@ -189,6 +189,33 @@ export class Fish {
     return bw * (0.09 + k * 0.06);
   }
 
+  seekFood(pellets) {
+    if (this.fleeing) return;
+    const EAT_RADIUS = 14;
+    const ATTRACT_RADIUS = 200;
+    let closestDist = ATTRACT_RADIUS;
+    let target = null;
+
+    for (const p of pellets) {
+      const dx = p.x - this.x;
+      const dy = p.y - this.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < EAT_RADIUS) {
+        p.eaten = true;
+      } else if (dist < closestDist) {
+        closestDist = dist;
+        target = { dx, dy, dist };
+      }
+    }
+
+    if (target) {
+      const strength = (1 - target.dist / ATTRACT_RADIUS) * 0.02;
+      this.vx += (target.dx / target.dist) * strength;
+      this.vy += (target.dy / target.dist) * strength;
+      this.targetAngle = Math.atan2(target.dy, target.dx);
+    }
+  }
+
   // Create a fish from a KOI_VARIETIES entry
   static fromVariety(x, y, size, variety) {
     return new Fish(x, y, size, variety);
@@ -241,6 +268,21 @@ export class Fish {
     ctx.fillStyle = grad;
     this._drawBodyPath(ctx, topPts, botPts);
     ctx.fill();
+
+    // --- Water-light shimmer (clipped to body) ---
+    ctx.save();
+    this._drawBodyPath(ctx, topPts, botPts);
+    ctx.clip();
+    const shimX = spine[2].x;
+    const shimY = spine[2].y - s * 0.08;
+    const shimG = ctx.createRadialGradient(shimX, shimY, 0, shimX, shimY, s * 1.1);
+    shimG.addColorStop(0,   'rgba(255,255,255,0.32)');
+    shimG.addColorStop(0.35,'rgba(255,255,255,0.10)');
+    shimG.addColorStop(1,   'rgba(255,255,255,0)');
+    ctx.fillStyle = shimG;
+    ctx.globalAlpha = 1;
+    ctx.fillRect(shimX - s * 2, shimY - s, s * 4, s * 2);
+    ctx.restore();
 
     // --- Spots ---
     ctx.globalAlpha = 0.75;
