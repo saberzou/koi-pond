@@ -1,5 +1,5 @@
 // pond.js — Main orchestrator
-import { Fish } from './fish.js?v=17';
+import { Fish } from './fish.js?v=18';
 import { RippleManager } from './ripple.js';
 import { LotusManager } from './lotus.js?v=15';
 import { Dragonfly } from './dragonfly.js?v=10';
@@ -7,6 +7,8 @@ import { FISH_COUNT, FEAR_RADIUS } from './config.js';
 import { BreathingMode } from './breathing.js?v=2';
 import { RainManager } from './rain.js';
 import { Duck } from './duck.js?v=4';
+import { FoodManager } from './food.js';
+import { CausticLayer } from './caustics.js';
 
 let canvas, ctx, w, h;
 let fish = [];
@@ -16,10 +18,16 @@ let dragonfly;
 let breathing;
 let rainManager;
 let duck;
+let foodManager;
+let causticLayer;
 let liquidApp = null;
 let weather = 'sunny';
 let darknessAlpha = 0;
 let lastDragRippleTime = 0;
+
+const HOLD_DELAY_MS = 380;
+const HOLD_REPEAT_MS = 320;
+let pressState = null;
 
 function generatePondTexture() {
   const dpr = window.devicePixelRatio || 1;
@@ -95,10 +103,11 @@ function resize() {
   if (lotus) lotus.generate(w, h);
   if (rainManager) rainManager.resize(w, h);
   if (duck) duck.resize(w, h);
+  if (causticLayer) causticLayer.resize(w, h);
 }
 
 function handleInteraction(px, py) {
-  if (breathing.isActive()) return; // ignore taps during breathing
+  if (breathing.isActive()) return;
   ripples.add(px, py);
   for (const f of fish) {
     f.flee(px, py);
@@ -123,6 +132,23 @@ function handleDrag(px, py) {
 function loop() {
   ctx.clearRect(0, 0, w, h);
 
+  // Caustic light patterns — drawn first, on bare water
+  causticLayer.update();
+  causticLayer.draw(ctx);
+
+  // Long-press feeding check
+  if (pressState && !pressState.dragging && !breathing.isActive()) {
+    const now = performance.now();
+    const elapsed = now - pressState.startTime;
+    if (elapsed >= HOLD_DELAY_MS) {
+      if (!pressState.fed || now - pressState.lastDrop >= HOLD_REPEAT_MS) {
+        foodManager.add(pressState.x, pressState.y);
+        pressState.fed = true;
+        pressState.lastDrop = now;
+      }
+    }
+  }
+
   // Breathing mode overrides normal fish movement
   if (breathing.isActive()) {
     breathing.update(fish, w, h);
@@ -131,12 +157,19 @@ function loop() {
       duck.update(w, h, ripples, fish, lotus);
     }
   } else {
-    fish.forEach(f => f.update(w, h, fish));
+    const pellets = foodManager.getPellets();
+    fish.forEach(f => {
+      f.update(w, h, fish);
+      f.seekFood(pellets);
+    });
     if (duck) {
       duck.setBreathingSlowdown(1);
       duck.update(w, h, ripples, fish, lotus);
     }
   }
+
+  // Food update
+  foodManager.update();
 
   // Progress ring (drawn behind fish)
   breathing.drawRing(ctx, w, h);
@@ -146,6 +179,10 @@ function loop() {
   ripples.draw(ctx);
   lotus.update();
   lotus.draw(ctx);
+
+  // Food pellets float on water surface alongside lotus
+  foodManager.draw(ctx);
+
   // Duck drawn AFTER lotus — it's on the water surface, never under lily pads
   if (duck) duck.draw(ctx);
 
@@ -172,6 +209,21 @@ function loop() {
 
   // Vignette drawn last (top layer)
   breathing.drawVignette(ctx, w, h);
+
+  // Hold-to-feed indicator (drawn on top of everything)
+  if (pressState && !pressState.dragging && !breathing.isActive()) {
+    const elapsed = performance.now() - pressState.startTime;
+    const progress = Math.min(1, elapsed / HOLD_DELAY_MS);
+    if (progress > 0.02) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(pressState.x, pressState.y, 20, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * progress);
+      ctx.strokeStyle = pressState.fed ? 'rgba(255,210,80,0.9)' : 'rgba(255,210,80,0.75)';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
 
   // Expose current phase for HTML UI label
   if (breathing.isActive()) {
@@ -211,6 +263,8 @@ export function init() {
   breathing = new BreathingMode();
   rainManager = new RainManager(w, h);
   duck = new Duck(w * 0.3 + Math.random() * w * 0.4, h * 0.3 + Math.random() * h * 0.4);
+  foodManager = new FoodManager();
+  causticLayer = new CausticLayer(w, h);
 
   // Weather toggle — controls liquid displacement + rain ripples
   window.setWeather = (mode) => {
@@ -257,24 +311,68 @@ export function init() {
     resize();
   });
 
-  canvas.addEventListener('click', e => {
-    handleInteraction(e.clientX, e.clientY);
+  // --- Mouse: long-press to feed, short click to startle ---
+  canvas.addEventListener('mousedown', e => {
+    if (breathing.isActive()) return;
+    pressState = {
+      x: e.clientX, y: e.clientY,
+      startTime: performance.now(), lastDrop: 0,
+      fed: false, dragging: false,
+    };
   });
+
+  canvas.addEventListener('mouseup', e => {
+    if (pressState) {
+      if (!pressState.fed && !pressState.dragging) {
+        handleInteraction(pressState.x, pressState.y);
+      }
+      pressState = null;
+    }
+  });
+
+  canvas.addEventListener('mouseleave', () => { pressState = null; });
+
+  canvas.addEventListener('mousemove', e => {
+    if (e.buttons === 1) {
+      if (pressState) pressState.dragging = true;
+      handleDrag(e.clientX, e.clientY);
+    }
+  });
+
+  // --- Touch: long-press to feed, short tap to startle, drag to disturb ---
   canvas.addEventListener('touchstart', e => {
     e.preventDefault();
-    for (const t of e.touches) {
-      handleInteraction(t.clientX, t.clientY);
+    const t0 = e.touches[0];
+    pressState = {
+      x: t0.clientX, y: t0.clientY,
+      startX: t0.clientX, startY: t0.clientY,
+      startTime: performance.now(), lastDrop: 0,
+      fed: false, dragging: false,
+    };
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', e => {
+    e.preventDefault();
+    if (pressState) {
+      if (!pressState.fed && !pressState.dragging) {
+        handleInteraction(pressState.x, pressState.y);
+      }
+      pressState = null;
     }
   }, { passive: false });
 
-  canvas.addEventListener('mousemove', e => {
-    if (e.buttons === 1) handleDrag(e.clientX, e.clientY);
-  });
   canvas.addEventListener('touchmove', e => {
     e.preventDefault();
-    for (const t of e.touches) {
-      handleDrag(t.clientX, t.clientY);
+    const t0 = e.touches[0];
+    const px = t0.clientX, py = t0.clientY;
+    if (pressState) {
+      const ddx = px - pressState.startX;
+      const ddy = py - pressState.startY;
+      if (Math.sqrt(ddx * ddx + ddy * ddy) > 12) pressState.dragging = true;
+      pressState.x = px;
+      pressState.y = py;
     }
+    handleDrag(px, py);
   }, { passive: false });
 
   loop();
