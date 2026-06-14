@@ -288,6 +288,38 @@
     #music-btn.playing .bar:nth-child(3) { animation: bar-bounce 0.8s ease-in-out infinite 0.4s; }
     #music-btn.playing .bar:nth-child(4) { animation: bar-bounce 0.8s ease-in-out infinite 0.1s; }
 
+    /* Language toggle (top-right, symmetric with music button top-left) */
+    #lang-btn {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      z-index: 10;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(0,0,0,0.25);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: rgba(255,255,255,0.8);
+      font-size: 14px;
+      font-weight: 600;
+      font-family: -apple-system, "PingFang SC", "SF Pro Text", "Helvetica Neue", sans-serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #lang-btn:hover {
+      background: rgba(0,0,0,0.4);
+      color: #fff;
+    }
+    #lang-btn:active {
+      transform: scale(0.92);
+    }
+
     #breathing-overlay {
       position: fixed;
       inset: 0;
@@ -324,17 +356,20 @@
   <canvas id="liquid-canvas"></canvas>
   <canvas id="fish-canvas"></canvas>
   <div class="weather-tabs">
-    <button class="weather-tab active" data-weather="sunny"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>晴</button>
-    <button class="weather-tab" data-weather="rainy"><svg viewBox="0 0 24 24"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242M16 14v6M8 14v6M12 16v6"/></svg>雨</button>
+    <button class="weather-tab active" data-weather="sunny"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg><span data-i18n="sunny">晴</span></button>
+    <button class="weather-tab" data-weather="rainy"><svg viewBox="0 0 24 24"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242M16 14v6M8 14v6M12 16v6"/></svg><span data-i18n="rainy">雨</span></button>
   </div>
 
   <!-- Background music -->
   <audio id="bg-music" loop preload="auto" src="cobblestone_mornings.mp3"></audio>
   <audio id="breathing-music" loop preload="auto" src="ethereal_resonance.mp3"></audio>
-  <button id="music-btn" class="paused" title="音乐"><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span></button>
+  <button id="music-btn" class="paused" title="音乐" data-i18n-title="music"><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span></button>
+
+  <!-- Language toggle (label shows the language you'd switch TO) -->
+  <button id="lang-btn" title="Switch language">EN</button>
 
   <!-- Breathing button (left side, symmetric with add-koi on right) -->
-  <button id="breathing-btn" title="呼吸模式"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg></button>
+  <button id="breathing-btn" title="呼吸模式" data-i18n-title="breathing"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg></button>
 
   <!-- Breathing phase label overlay -->
   <div id="breathing-overlay">
@@ -342,12 +377,71 @@
   </div>
 
   <!-- Add Koi floating button -->
-  <button id="add-koi-btn" title="添加锦鲤"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+  <button id="add-koi-btn" title="添加锦鲤" data-i18n-title="addKoi"><svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
 
   <!-- Koi variety selector panel -->
   <div id="koi-panel"></div>
 
   <script>
+    // ---- Localization (EN / 中) ----
+    const I18N = {
+      zh: {
+        sunny: '晴', rainy: '雨',
+        music: '音乐', breathing: '呼吸模式', addKoi: '添加锦鲤',
+        inhale: '吸气...', exhale: '呼气...',
+        toggleLabel: 'EN',        // button shows the language you switch TO
+        toggleTitle: '切换语言',
+      },
+      en: {
+        sunny: 'Sunny', rainy: 'Rainy',
+        music: 'Music', breathing: 'Breathing', addKoi: 'Add Koi',
+        inhale: 'Inhale...', exhale: 'Exhale...',
+        toggleLabel: '中',
+        toggleTitle: 'Switch language',
+      },
+    };
+
+    // Default to saved preference, else the browser's language
+    let currentLang = localStorage.getItem('koi-lang')
+      || (navigator.language && navigator.language.toLowerCase().startsWith('zh') ? 'zh' : 'en');
+
+    const langListeners = [];
+    window.onLangChange = (fn) => { langListeners.push(fn); fn(currentLang); };
+    window.getLang = () => currentLang;
+    window.t = (key) => (I18N[currentLang] && I18N[currentLang][key]) || key;
+
+    function applyLanguage(lang) {
+      currentLang = I18N[lang] ? lang : 'en';
+      localStorage.setItem('koi-lang', currentLang);
+      const dict = I18N[currentLang];
+      document.documentElement.lang = currentLang === 'zh' ? 'zh-CN' : 'en';
+
+      // Text content
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (dict[key]) el.textContent = dict[key];
+      });
+      // Title attributes
+      document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        const key = el.dataset.i18nTitle;
+        if (dict[key]) el.title = dict[key];
+      });
+      // Language button reflects the language you'd switch to
+      const langBtn = document.getElementById('lang-btn');
+      if (langBtn) { langBtn.textContent = dict.toggleLabel; langBtn.title = dict.toggleTitle; }
+
+      // Notify dynamic consumers (koi cards, breathing label)
+      langListeners.forEach(fn => fn(currentLang));
+    }
+
+    document.getElementById('lang-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      applyLanguage(currentLang === 'zh' ? 'en' : 'zh');
+    });
+
+    // Apply once on load
+    applyLanguage(currentLang);
+
     // Weather tabs
     document.querySelector('.weather-tabs').addEventListener('click', e => {
       const btn = e.target.closest('.weather-tab');
@@ -444,13 +538,16 @@
     });
 
     // --- Breathing phase label loop ---
-    const PHASE_TEXT = {
-      inhale:          '吸气...',
-      exhale:          '呼气...',
-    };
     let _lastPhase = null;
     const breathingLabel = document.getElementById('breathing-label');
     const breathingBtn   = document.getElementById('breathing-btn');
+
+    // Re-render the label immediately if language changes mid-session
+    window.onLangChange(() => {
+      if (_lastPhase && breathingLabel) {
+        breathingLabel.textContent = window.t(_lastPhase);
+      }
+    });
 
     function updateBreathingUI() {
       const active = window.isBreathingActive && window.isBreathingActive();
@@ -471,7 +568,7 @@
           // Fade out, swap text, fade in via CSS transition
           breathingLabel.classList.remove('visible');
           setTimeout(() => {
-            breathingLabel.textContent = PHASE_TEXT[phase] || '';
+            breathingLabel.textContent = window.t(phase);
             breathingLabel.classList.add('visible');
           }, 320);
           _lastPhase = phase;
@@ -498,6 +595,9 @@
       });
     }
 
+    // Card text elements keyed for language switching
+    const cardLocalizers = [];
+
     KOI_VARIETIES.forEach(variety => {
       const card = document.createElement('div');
       card.className = 'koi-card';
@@ -517,15 +617,25 @@
 
       const nameEl = document.createElement('div');
       nameEl.className = 'koi-name';
-      nameEl.textContent = variety.name;
 
       const nameEnEl = document.createElement('div');
       nameEnEl.className = 'koi-name-en';
-      nameEnEl.textContent = variety.nameEn;
 
       const descEl = document.createElement('div');
       descEl.className = 'koi-desc';
-      descEl.textContent = variety.desc;
+
+      // Localizer: primary name = current language; secondary = the other
+      cardLocalizers.push((lang) => {
+        if (lang === 'en') {
+          nameEl.textContent = variety.nameEn;
+          nameEnEl.textContent = variety.name;
+          descEl.textContent = variety.descEn || variety.desc;
+        } else {
+          nameEl.textContent = variety.name;
+          nameEnEl.textContent = variety.nameEn;
+          descEl.textContent = variety.desc;
+        }
+      });
 
       card.appendChild(canvas);
       card.appendChild(nameEl);
@@ -544,6 +654,9 @@
 
       panel.appendChild(card);
     });
+
+    // Keep card text in sync with the active language
+    window.onLangChange(lang => cardLocalizers.forEach(fn => fn(lang)));
 
     /**
      * Draw a top-down koi silhouette on a canvas with variety-accurate patterns.

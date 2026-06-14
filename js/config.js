@@ -3,37 +3,37 @@ export const FISH_COUNT = 7;
 
 export const KOI_VARIETIES = [
   // Kohaku family (white + red)
-  { name: '红白', nameEn: 'Kohaku', body: '#F0E4D0', spots: '#C4442A', belly: '#FFFFFF', desc: '白底红花纹' },
+  { name: '红白', nameEn: 'Kohaku', body: '#F0E4D0', spots: '#C4442A', belly: '#FFFFFF', desc: '白底红花纹', descEn: 'White body, red markings' },
   // Taisho Sanshoku (white + red + black)
-  { name: '大正三色', nameEn: 'Taisho Sanshoku', body: '#F0E4D0', spots: '#C4442A', belly: '#FFFFFF', accent: '#1A1A1A', desc: '白底红黑三色' },
+  { name: '大正三色', nameEn: 'Taisho Sanshoku', body: '#F0E4D0', spots: '#C4442A', belly: '#FFFFFF', accent: '#1A1A1A', desc: '白底红黑三色', descEn: 'White with red & black' },
   // Showa Sanshoku (black + red + white)
-  { name: '昭和三色', nameEn: 'Showa', body: '#1A1A1A', spots: '#C4442A', belly: '#2A2A2A', accent: '#F0E4D0', desc: '黑底红白三色' },
+  { name: '昭和三色', nameEn: 'Showa', body: '#1A1A1A', spots: '#C4442A', belly: '#2A2A2A', accent: '#F0E4D0', desc: '黑底红白三色', descEn: 'Black with red & white' },
   // Bekko (white/red/yellow + black spots)
-  { name: '白别甲', nameEn: 'Shiro Bekko', body: '#F0E4D0', spots: '#1A1A1A', belly: '#FFFFFF', desc: '白底黑斑' },
-  { name: '赤别甲', nameEn: 'Aka Bekko', body: '#C4442A', spots: '#1A1A1A', belly: '#E8A090', desc: '红底黑斑' },
+  { name: '白别甲', nameEn: 'Shiro Bekko', body: '#F0E4D0', spots: '#1A1A1A', belly: '#FFFFFF', desc: '白底黑斑', descEn: 'White with black spots' },
+  { name: '赤别甲', nameEn: 'Aka Bekko', body: '#C4442A', spots: '#1A1A1A', belly: '#E8A090', desc: '红底黑斑', descEn: 'Red with black spots' },
   // Utsuri (black + one color)
-  { name: '白写', nameEn: 'Shiro Utsuri', body: '#1A1A1A', spots: '#F0E4D0', belly: '#2A2A2A', desc: '黑白双色' },
-  { name: '绯写', nameEn: 'Hi Utsuri', body: '#1A1A1A', spots: '#C4442A', belly: '#2A2A2A', desc: '黑红双色' },
-  { name: '黄写', nameEn: 'Ki Utsuri', body: '#1A1A1A', spots: '#D4922A', belly: '#2A2A2A', desc: '黑黄双色' },
+  { name: '白写', nameEn: 'Shiro Utsuri', body: '#1A1A1A', spots: '#F0E4D0', belly: '#2A2A2A', desc: '黑白双色', descEn: 'Black & white' },
+  { name: '绯写', nameEn: 'Hi Utsuri', body: '#1A1A1A', spots: '#C4442A', belly: '#2A2A2A', desc: '黑红双色', descEn: 'Black & red' },
+  { name: '黄写', nameEn: 'Ki Utsuri', body: '#1A1A1A', spots: '#D4922A', belly: '#2A2A2A', desc: '黑黄双色', descEn: 'Black & yellow' },
   // Asagi (blue-grey + red belly)
-  { name: '浅黄', nameEn: 'Asagi', body: '#6B8BA4', spots: '#8AA0B5', belly: '#CC5533', desc: '蓝灰背红腹' },
+  { name: '浅黄', nameEn: 'Asagi', body: '#6B8BA4', spots: '#8AA0B5', belly: '#CC5533', desc: '蓝灰背红腹', descEn: 'Blue-grey back, red belly' },
   // Ogon (metallic single color)
-  { name: '黄金', nameEn: 'Yamabuki Ogon', body: '#D4A017', spots: '#E8C040', belly: '#F0D870', desc: '全身金色' },
-  { name: '白金', nameEn: 'Gin Matsuba', body: '#D0D0D0', spots: '#B8B8B8', belly: '#E8E8E8', desc: '银白色' },
+  { name: '黄金', nameEn: 'Yamabuki Ogon', body: '#D4A017', spots: '#E8C040', belly: '#F0D870', desc: '全身金色', descEn: 'Solid metallic gold' },
+  { name: '白金', nameEn: 'Gin Matsuba', body: '#D0D0D0', spots: '#B8B8B8', belly: '#E8E8E8', desc: '银白色', descEn: 'Silvery white' },
   // Goshiki (5 colors)
-  { name: '五色', nameEn: 'Goshiki', body: '#4A6070', spots: '#C4442A', belly: '#8090A0', desc: '五色杂陈' },
+  { name: '五色', nameEn: 'Goshiki', body: '#4A6070', spots: '#C4442A', belly: '#8090A0', desc: '五色杂陈', descEn: 'Five-color blend' },
   // Tancho (white + single red dot on head)
-  { name: '丹顶', nameEn: 'Tancho', body: '#F0E4D0', spots: '#C4442A', belly: '#FFFFFF', tancho: true, desc: '白底头顶红圆' },
+  { name: '丹顶', nameEn: 'Tancho', body: '#F0E4D0', spots: '#C4442A', belly: '#FFFFFF', tancho: true, desc: '白底头顶红圆', descEn: 'White with red crown spot' },
   // Benigoi (solid red)
-  { name: '红鲤', nameEn: 'Benigoi', body: '#C4442A', spots: '#D4553A', belly: '#E8A090', desc: '全身红色' },
+  { name: '红鲤', nameEn: 'Benigoi', body: '#C4442A', spots: '#D4553A', belly: '#E8A090', desc: '全身红色', descEn: 'Solid deep red' },
   // Karashigoi (solid yellow-cream)
-  { name: '芥子鲤', nameEn: 'Karashigoi', body: '#E8C860', spots: '#D4B850', belly: '#F0E0A0', desc: '全身淡黄' },
+  { name: '芥子鲤', nameEn: 'Karashigoi', body: '#E8C860', spots: '#D4B850', belly: '#F0E0A0', desc: '全身淡黄', descEn: 'Soft pale yellow' },
   // Kumonryu (black + white, pattern changes)
-  { name: '九纹龙', nameEn: 'Kumonryu', body: '#1A1A1A', spots: '#F0E4D0', belly: '#3A3A3A', desc: '黑白变化龙纹' },
+  { name: '九纹龙', nameEn: 'Kumonryu', body: '#1A1A1A', spots: '#F0E4D0', belly: '#3A3A3A', desc: '黑白变化龙纹', descEn: 'Shifting black & white dragon' },
   // Chagoi (brown/olive)
-  { name: '茶鲤', nameEn: 'Chagoi', body: '#8B7355', spots: '#9A8265', belly: '#A89575', desc: '全身茶色' },
+  { name: '茶鲤', nameEn: 'Chagoi', body: '#8B7355', spots: '#9A8265', belly: '#A89575', desc: '全身茶色', descEn: 'Earthy tea brown' },
   // Karasugoi (solid black)
-  { name: '乌鲤', nameEn: 'Karasugoi', body: '#1A1A1A', spots: '#2A2A2A', belly: '#333333', desc: '全身墨黑' },
+  { name: '乌鲤', nameEn: 'Karasugoi', body: '#1A1A1A', spots: '#2A2A2A', belly: '#333333', desc: '全身墨黑', descEn: 'Solid ink black' },
 ];
 export const FEAR_RADIUS = 150;
 export const FEAR_FORCE = 3.5;

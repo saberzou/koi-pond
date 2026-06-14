@@ -155,6 +155,18 @@ Two complementary rain effects run during rainy weather:
 
 Both are active when `weather === 'rainy'`. `RainManager` is started/stopped via `rainManager.start()` / `rainManager.stop()` inside `setWeather()`.
 
+## Localization (EN / 中)
+
+UI text is bilingual, toggled via the language button (top-right, `#lang-btn`). The system lives in the first inline `<script>` in `index.html`:
+
+- `I18N` — translation dictionary with `zh` and `en` keys
+- `applyLanguage(lang)` — updates all `[data-i18n]` (textContent) and `[data-i18n-title]` (title attr) elements, the language button label, and notifies dynamic consumers
+- `window.t(key)` — translate a single key in the active language
+- `window.onLangChange(fn)` — register a callback; called immediately and on every language switch (used by koi cards and the breathing label)
+- Preference is detected from `navigator.language` on first visit and persisted to `localStorage` under `koi-lang`
+
+To add a translatable static element: add `data-i18n="key"` (or `data-i18n-title="key"`) and the matching key to both dictionaries. Koi varieties carry both `name`/`nameEn` and `desc`/`descEn` in `config.js`; cards swap primary/secondary based on language.
+
 ## Running Locally
 
 No installation required. Options:
